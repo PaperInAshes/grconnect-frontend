@@ -4,7 +4,7 @@
 
 const CONFIG = {
   // URL backend Laravel (sesuaikan jika port berbeda)
-  API_BASE_URL: 'https://grconnect-api.kesug.com/setup-db/api',
+  API_BASE_URL: 'https://grconnect-api.kesug.com/api',
 
   // Nama key di localStorage
   TOKEN_KEY: 'gr_token',
