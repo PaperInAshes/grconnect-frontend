@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — GR-Connect</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="app-layout">
+  <div id="sidebar-container"></div>
+
+  <div class="main-content">
+    <div class="page-header">
+      <div class="page-header-inner">
+        <div>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle" id="greeting">Selamat datang!</p>
+        </div>
+        <div class="page-actions">
+          <span id="current-date" style="font-size:0.8rem;color:#bbb;"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <!-- Stats Grid -->
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="white"><rect x="2" y="2" width="18" height="3"/><rect x="2" y="7" width="18" height="3"/><rect x="2" y="12" width="12" height="3"/></svg>
+          </div>
+          <div>
+            <div class="stat-value" id="stat-total-wo">—</div>
+            <div class="stat-label">Total Work Order</div>
+            <div class="stat-change">Semua status</div>
+          </div>
+        </div>
+        <div class="stat-card" style="border-top-color:#c07000;">
+          <div class="stat-icon" style="background:#c07000;">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="white"><circle cx="11" cy="11" r="9" fill="none" stroke="white" stroke-width="2"/><path d="M11 6v5l3 3" stroke="white" stroke-width="2" fill="none"/></svg>
+          </div>
+          <div>
+            <div class="stat-value" id="stat-antrean">—</div>
+            <div class="stat-label">Dalam Antrean</div>
+          </div>
+        </div>
+        <div class="stat-card" style="border-top-color:#0077aa;">
+          <div class="stat-icon" style="background:#0077aa;">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="white"><path d="M4 18 l7-14 7 14H4z"/></svg>
+          </div>
+          <div>
+            <div class="stat-value" id="stat-dikerjakan">—</div>
+            <div class="stat-label">Sedang Dikerjakan</div>
+          </div>
+        </div>
+        <div class="stat-card" style="border-top-color:#1a7a1a;">
+          <div class="stat-icon" style="background:#1a7a1a;">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="white"><path d="M4 11l5 5 9-9" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="square"/></svg>
+          </div>
+          <div>
+            <div class="stat-value" id="stat-selesai">—</div>
+            <div class="stat-label">Selesai</div>
+          </div>
+        </div>
+        <div class="stat-card" style="border-top-color:#cc0000;">
+          <div class="stat-icon" style="background:#cc0000;">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="white"><rect x="3" y="3" width="16" height="16"/><rect x="9" y="8" width="4" height="5" fill="#cc0000"/><rect x="9" y="14" width="4" height="3" fill="#cc0000"/></svg>
+          </div>
+          <div>
+            <div class="stat-value" id="stat-low-stock">—</div>
+            <div class="stat-label">Stok Kritis</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Work Orders -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <div class="table-card-title">Work Order Terbaru</div>
+          <button class="btn btn-primary btn-sm" onclick="navigate('work-orders.html')">Lihat Semua</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID WO</th>
+                <th>Plat Nomor</th>
+                <th>Customer</th>
+                <th>Keluhan</th>
+                <th>Tanggal Masuk</th>
+                <th>Status</th>
+                <th>Pembayaran</th>
+              </tr>
+            </thead>
+            <tbody id="recentWOTable">
+              <tr><td colspan="7"><div class="loading-state">
+                <svg class="spinner" width="24" height="24" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" stroke="#cc0000" stroke-width="3" fill="none" stroke-dasharray="30 70"/>
+                </svg>
+                Memuat...
+              </div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Low Stock Warning -->
+      <div id="lowStockSection" style="margin-top:20px; display:none;">
+        <div class="table-card">
+          <div class="table-card-header" style="border-top:5px solid #cc0000;">
+            <div class="table-card-title">PERINGATAN: Stok Kritis</div>
+            <button class="btn btn-secondary btn-sm" onclick="navigate('spareparts.html')">Kelola Stok</button>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Nama Part</th><th>Stok Tersedia</th><th>Batas Minimum</th><th>Status</th></tr>
+              </thead>
+              <tbody id="lowStockTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<script>
+  document.getElementById('sidebar-container').innerHTML = renderSidebar('dashboard');
+
+  const hour = new Date().getHours();
+  const greet = hour < 11 ? 'Selamat Pagi' : hour < 15 ? 'Selamat Siang' : hour < 18 ? 'Selamat Sore' : 'Selamat Malam';
+  document.getElementById('greeting').textContent = `${greet}, ${user.nama_lengkap}`;
+  document.getElementById('current-date').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+
+  async function loadDashboard() {
+    const [woRes, partRes] = await Promise.all([
+      API.getWorkOrders({ per_page: 100 }),
+      API.getSpareparts({ per_page: 100 }),
+    ]);
+
+    if (woRes && woRes.ok) {
+      const wos        = woRes.data.data.data || [];
+      const antrean    = wos.filter(w => w.status_wo === 'antrean').length;
+      const dikerjakan = wos.filter(w => w.status_wo === 'dikerjakan' || w.status_wo === 'nunggu_part').length;
+      const selesai    = wos.filter(w => w.status_wo === 'selesai').length;
+
+      document.getElementById('stat-total-wo').textContent   = wos.length;
+      document.getElementById('stat-antrean').textContent    = antrean;
+      document.getElementById('stat-dikerjakan').textContent = dikerjakan;
+      document.getElementById('stat-selesai').textContent    = selesai;
+
+      const tbody  = document.getElementById('recentWOTable');
+      const recent = wos.slice(0, 8);
+      if (recent.length === 0) {
+        Utils.showEmpty(tbody, 'Belum ada Work Order');
+      } else {
+        tbody.innerHTML = recent.map(wo => `
+          <tr>
+            <td class="td-main">#${wo.id_wo}</td>
+            <td><code style="background:#eee;padding:1px 7px;font-size:0.8rem;">${Utils.escapeHtml(wo.plat_nomor)}</code></td>
+            <td>${Utils.escapeHtml(wo.kendaraan?.customer?.nama_customer || '-')}</td>
+            <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${Utils.escapeHtml(wo.keluhan_awal)}">${Utils.escapeHtml(wo.keluhan_awal)}</td>
+            <td>${Utils.formatDate(wo.tanggal_masuk)}</td>
+            <td>${Utils.statusBadge(wo.status_wo)}</td>
+            <td>${Utils.statusBadge(wo.status_pembayaran)}</td>
+          </tr>
+        `).join('');
+      }
+    } else {
+      document.getElementById('recentWOTable').innerHTML =
+        '<tr><td colspan="7" style="text-align:center;color:#cc0000;padding:20px;font-weight:700;">Gagal memuat data. Pastikan backend berjalan.</td></tr>';
+    }
+
+    if (partRes && partRes.ok) {
+      const parts    = partRes.data.data.data || [];
+      const lowStock = parts.filter(p => parseInt(p.stok_tersedia) <= parseInt(p.batas_minimum));
+      document.getElementById('stat-low-stock').textContent = lowStock.length;
+
+      if (lowStock.length > 0) {
+        document.getElementById('lowStockSection').style.display = 'block';
+        document.getElementById('lowStockTable').innerHTML = lowStock.map(p => `
+          <tr>
+            <td class="td-main">${Utils.escapeHtml(p.nama_part)}</td>
+            <td style="color:#cc0000;font-weight:700;">${p.stok_tersedia}</td>
+            <td>${p.batas_minimum}</td>
+            <td><span class="badge badge-low">KRITIS</span></td>
+          </tr>
+        `).join('');
+      }
+    }
+  }
+
+  loadDashboard();
+</script>
+</body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Departemen Sparepart — GR-Connect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    :root { --font: 'Inter', sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); }
+    .section-block { background: #fff; border: 2px solid #000; margin-bottom: 24px; }
+    .section-head { background: #111; color: #fff; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; }
+    .section-head-title { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; }
+    .tbl { width: 100%; border-collapse: collapse; }
+    .tbl th { background: #f3f4f6; border-bottom: 2px solid #000; padding: 10px 12px; text-align: left; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+    .tbl td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; font-size: 0.85rem; font-weight: 600; vertical-align: middle; }
+    .tbl tr:last-child td { border-bottom: none; }
+    .tbl tr.low-stock td { background: #fef2f2; }
+    .badge-crit { background: #dc2626; color: #fff; padding: 3px 8px; font-size: 0.72rem; font-weight: 900; text-transform: uppercase; }
+    .badge-ok { background: #16a34a; color: #fff; padding: 3px 8px; font-size: 0.72rem; font-weight: 900; text-transform: uppercase; }
+    .badge-wo { background: #e5e7eb; color: #111; padding: 3px 8px; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; }
+    .btn-ns { border-radius: 0; font-weight: 900; text-transform: uppercase; font-family: var(--font); letter-spacing: 0.04em; cursor: pointer; border: 2px solid #000; padding: 7px 14px; font-size: 0.8rem; }
+    .btn-red { background: #dc2626; color: #fff; }
+    .btn-grn { background: #16a34a; color: #fff; }
+    .btn-ylw { background: #facc15; color: #000; }
+    .btn-sec { background: #e5e7eb; color: #000; }
+    .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .toast-bar { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { padding: 12px 20px; font-weight: 800; font-size: 0.85rem; text-transform: uppercase; border: 2px solid #000; min-width: 260px; }
+    .toast-success { background: #16a34a; color: #fff; }
+    .toast-error { background: #dc2626; color: #fff; }
+    .modal-ov { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .modal-ov.open { display: flex; }
+    .modal-box { background: #fff; border: 4px solid #000; width: 100%; max-width: 460px; }
+    .modal-hd { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; }
+    .modal-hd-title { font-size: 0.9rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; }
+    .modal-bd { padding: 20px 18px; }
+    .modal-ft { padding: 14px 18px; display: flex; gap: 10px; justify-content: flex-end; border-top: 2px solid #000; }
+    .form-lbl { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 6px; }
+    .form-inp { width: 100%; padding: 10px 12px; border: 2px solid #000; border-radius: 0; font-family: var(--font); font-size: 0.95rem; font-weight: 700; outline: none; }
+    .form-sel { width: 100%; padding: 10px 12px; border: 2px solid #000; border-radius: 0; font-family: var(--font); font-weight: 700; outline: none; background: #fff; }
+    .form-grp { margin-bottom: 16px; }
+    .err-box { display: none; background: #fef2f2; border: 2px solid #dc2626; padding: 10px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #dc2626; margin-bottom: 12px; }
+    .empty-row td { text-align: center; padding: 28px; color: #888; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; }
+    .filter-row { padding: 12px 16px; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #e5e7eb; flex-wrap: wrap; }
+    .filter-inp { padding: 8px 12px; border: 2px solid #000; border-radius: 0; font-family: var(--font); font-weight: 600; font-size: 0.85rem; outline: none; }
+    .page-hdr { border-bottom: 3px solid #000; padding: 18px 24px; background: #fff; }
+    .page-ttl { font-size: 1.4rem; font-weight: 900; text-transform: uppercase; }
+    .page-sub { font-size: 0.8rem; color: #555; font-weight: 600; text-transform: uppercase; margin-top: 2px; }
+    .page-body { padding: 24px; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <div id="sidebar-container"></div>
+  <div class="main-content">
+    <div class="page-hdr">
+      <div class="page-ttl">DEPARTEMEN SPAREPART</div>
+      <div class="page-sub">LOGISTIK GUDANG &mdash; GR-CONNECT BENGKEL</div>
+    </div>
+    <div class="page-body">
+
+      <!-- SEKSI 0: ANTREAN REQUEST MEKANIK (STATUS: PENDING) -->
+      <div class="section-block">
+        <div class="section-head" style="background:#7c3aed;">
+          <div class="section-head-title">ANTREAN REQUEST MEKANIK (MENUNGGU ACC)</div>
+          <button class="btn-ns btn-sec" onclick="loadPartRequests()">REFRESH</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead><tr>
+              <th>ID REQ</th><th>WO #</th><th>PLAT</th><th>MEKANIK</th><th>PART DIMINTA</th><th>QTY REQ</th><th>EST. SUBTOTAL</th><th>STATUS</th><th>AKSI</th>
+            </tr></thead>
+            <tbody id="partRequestTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+
+      <!-- SEKSI 2: MANAJEMEN STOK -->
+      <div class="section-block">
+        <div class="section-head">
+          <div class="section-head-title">MANAJEMEN STOK SPAREPART</div>
+          <button class="btn-ns btn-ylw" onclick="loadParts()">REFRESH</button>
+        </div>
+        <div class="filter-row">
+          <input type="text" id="partSearch" class="filter-inp" placeholder="CARI NAMA PART..." oninput="debounceLoad()" style="min-width:220px;" />
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;font-weight:800;text-transform:uppercase;cursor:pointer;">
+            <input type="checkbox" id="filterLow" onchange="loadParts()" style="accent-color:#dc2626;width:16px;height:16px;" />
+            STOK KRITIS SAJA
+          </label>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="tbl">
+            <thead><tr>
+              <th>ID</th><th>NAMA PART</th><th>STOK</th><th>MINIMUM</th><th>HARGA SATUAN</th><th>STATUS STOK</th><th>AKSI</th>
+            </tr></thead>
+            <tbody id="partTable"></tbody>
+          </table>
+        </div>
+        <div id="partPages" style="padding:12px 16px; display:flex; gap:8px; align-items:center; border-top:1px solid #e5e7eb;"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast-bar" id="toastBar"></div>
+
+
+<!-- Modal: Restock -->
+<div class="modal-ov" id="restockModal">
+  <div class="modal-box">
+    <div class="modal-hd" style="background:#16a34a;color:#fff;">
+      <div class="modal-hd-title">RESTOCK SPAREPART</div>
+      <button class="btn-ns btn-sec" style="color:#fff;border-color:#fff;background:transparent;" onclick="closeModal('restockModal')">X</button>
+    </div>
+    <div class="modal-bd">
+      <div id="restockError" class="err-box"></div>
+      <div style="background:#f0fdf4;border:2px solid #16a34a;padding:12px;margin-bottom:16px;">
+        <div style="font-size:0.75rem;font-weight:800;text-transform:uppercase;color:#555;">PART</div>
+        <div id="rs_nama" style="font-size:1.05rem;font-weight:900;color:#000;text-transform:uppercase;"></div>
+        <div style="font-size:0.75rem;font-weight:800;text-transform:uppercase;color:#555;margin-top:8px;">STOK SAAT INI</div>
+        <div id="rs_stok" style="font-size:1.5rem;font-weight:900;color:#16a34a;"></div>
+      </div>
+      <div class="form-grp">
+        <label class="form-lbl">TAMBAH QTY *</label>
+        <input type="number" id="rs_qty" class="form-inp" min="1" placeholder="Jumlah penambahan stok..." />
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-ns btn-sec" onclick="closeModal('restockModal')">BATAL</button>
+      <button class="btn-ns btn-grn" id="btnRestockSubmit" onclick="submitRestock()">TAMBAH STOK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Approve Request Mekanik -->
+<div class="modal-ov" id="approveModal">
+  <div class="modal-box" style="max-width:500px;">
+    <div class="modal-hd" style="background:#7c3aed;color:#fff;">
+      <div class="modal-hd-title">ACC REQUEST SPAREPART</div>
+      <button class="btn-ns btn-sec" style="color:#fff;border-color:#fff;background:transparent;" onclick="closeModal('approveModal')">X</button>
+    </div>
+    <div class="modal-bd">
+      <div id="approveError" class="err-box"></div>
+      <!-- Info request dari mekanik (read-only) -->
+      <div style="background:#f5f3ff;border:2px solid #7c3aed;padding:12px;margin-bottom:16px;">
+        <div style="font-size:0.75rem;font-weight:800;text-transform:uppercase;color:#555;">PART DIMINTA</div>
+        <div id="ap_namaPart" style="font-size:1.05rem;font-weight:900;color:#000;text-transform:uppercase;"></div>
+        <div style="display:flex;gap:24px;margin-top:10px;">
+          <div>
+            <div style="font-size:0.7rem;font-weight:800;text-transform:uppercase;color:#888;">QTY DIMINTA MEKANIK</div>
+            <div id="ap_qtyReq" style="font-size:1.5rem;font-weight:900;color:#7c3aed;"></div>
+          </div>
+          <div>
+            <div style="font-size:0.7rem;font-weight:800;text-transform:uppercase;color:#888;">STOK TERSEDIA DB</div>
+            <div id="ap_stokAda" style="font-size:1.5rem;font-weight:900;color:#16a34a;"></div>
+          </div>
+        </div>
+      </div>
+      <!-- QTY final — pre-filled, bisa diubah gudang -->
+      <div class="form-grp">
+        <label class="form-lbl">QTY FINAL YANG DI-ACC *</label>
+        <div style="font-size:0.73rem;font-weight:700;text-transform:uppercase;color:#555;margin-bottom:6px;">
+          DAPAT DIUBAH JIKA STOK FISIK TIDAK SESUAI. INI YANG AKAN DIPOTONG DARI DATABASE.
+        </div>
+        <input type="number" id="ap_qtyFinal" class="form-inp" min="1" />
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn-ns btn-sec" onclick="closeModal('approveModal')">BATAL</button>
+      <button class="btn-ns btn-red" id="btnRejectReq" onclick="submitRejectRequest()">TOLAK</button>
+      <button class="btn-ns" style="background:#7c3aed;color:#fff;border:2px solid #000;" id="btnApproveReq" onclick="submitApproveRequest()">ACC & POTONG STOK</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<script>
+  if (!Auth.hasRole('sparepart', 'manager')) window.location.href = 'work-orders.html';
+  document.getElementById('sidebar-container').innerHTML = renderSidebar('spareparts');
+
+  const $ = id => document.getElementById(id);
+  let debounceTimer;
+  let partPage = 1;
+
+  function debounceLoad() { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => loadParts(1), 380); }
+
+  function fmtCur(n) {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n || 0);
+  }
+  function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function showToast(msg, type = 'success') {
+    const bar = $('toastBar');
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.textContent = msg;
+    bar.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  function closeModal(id) {
+    $(id).classList.remove('open');
+    // Reset error box jika ada di dalam modal yang ditutup
+    const errBox = $(id)?.querySelector('.err-box');
+    if (errBox) errBox.style.display = 'none';
+  }
+
+  // ── SEKSI 0: Antrean Request Mekanik ──
+  async function loadPartRequests() {
+    const tbody = $('partRequestTable');
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="9">MEMUAT DATA...</td></tr>';
+
+    const res = await API.getPartRequests({ status: 'pending', per_page: 50 });
+    if (!res || !res.ok) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="9">GAGAL MEMUAT ANTREAN REQUEST</td></tr>';
+      return;
+    }
+
+    const items = res.data.data?.data || res.data.data || [];
+    if (!items.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="9">TIDAK ADA REQUEST PENDING DARI MEKANIK</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = items.map(req => {
+      const namaPart  = esc(req.sparepart?.nama_part || `PART #${req.id_part}`);
+      const stokAda   = req.sparepart?.stok_tersedia ?? '?';
+      const mekanik   = esc(req.work_order?.mekanik?.nama_lengkap || 'BELUM ASSIGN');
+      const plat      = esc(req.work_order?.plat_nomor || '-');
+      const estSub    = fmtCur(req.subtotal_harga);
+      const stokCrit  = parseInt(stokAda) < req.qty_pakai
+        ? '<span class="badge-crit">[STOK KURANG]</span>' : '';
+
+      return `
+        <tr>
+          <td style="font-weight:700;">#${req.id_detail}</td>
+          <td style="font-weight:900;">WO #${req.id_wo}</td>
+          <td><code style="background:#e5e7eb;padding:3px 8px;font-weight:800;border:1px solid #000;">${plat}</code></td>
+          <td style="font-weight:700;text-transform:uppercase;">${mekanik}</td>
+          <td style="font-weight:800;text-transform:uppercase;">${namaPart}</td>
+          <td style="font-weight:900;font-size:1.1rem;">${req.qty_pakai} ${stokCrit}</td>
+          <td style="font-weight:700;">${estSub}</td>
+          <td><span style="background:#7c3aed;color:#fff;padding:3px 8px;font-size:0.72rem;font-weight:900;text-transform:uppercase;">PENDING</span></td>
+          <td>
+            <button class="btn-ns" style="background:#7c3aed;color:#fff;"
+              onclick="showApproveModal(${req.id_detail}, '${namaPart.replace(/'/g, '\\&#39;')}', ${req.qty_pakai}, ${stokAda})"
+            >ACC</button>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  function showApproveModal(detailPartId, namaPart, qtyRequest, stokAda) {
+    $('ap_namaPart').textContent = namaPart;
+    $('ap_qtyReq').textContent   = qtyRequest + ' PCS';
+    $('ap_stokAda').textContent  = stokAda + ' PCS';
+    $('ap_qtyFinal').value       = qtyRequest; // Pre-filled, bisa diubah oleh gudang
+    $('approveError').style.display = 'none';
+    $('approveModal').dataset.detailPartId = detailPartId;
+    $('approveModal').classList.add('open');
+  }
+
+  async function submitApproveRequest() {
+    const errEl      = $('approveError');
+    const detailId   = parseInt($('approveModal').dataset.detailPartId);
+    const qtyFinal   = parseInt($('ap_qtyFinal').value);
+    errEl.style.display = 'none';
+
+    if (!qtyFinal || qtyFinal < 1) {
+      errEl.textContent = 'QTY FINAL MINIMAL 1.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    const btn = $('btnApproveReq');
+    btn.disabled = true; btn.textContent = 'MEMPROSES...';
+    const res = await API.approvePartRequest(detailId, { qty_final: qtyFinal });
+    btn.disabled = false; btn.textContent = 'ACC & POTONG STOK';
+
+    if (res && res.ok) {
+      showToast('REQUEST DI-ACC. STOK BERHASIL DIPOTONG DARI DATABASE.');
+      closeModal('approveModal');
+      loadPartRequests();
+      loadParts(partPage);
+    } else {
+      errEl.textContent = res?.data?.message || 'GAGAL ACC REQUEST.';
+      errEl.style.display = 'block';
+    }
+  }
+
+  async function submitRejectRequest() {
+    const errEl    = $('approveError');
+    const detailId = parseInt($('approveModal').dataset.detailPartId);
+    errEl.style.display = 'none';
+
+    const btn = $('btnRejectReq');
+    btn.disabled = true; btn.textContent = 'MENOLAK...';
+    const res = await API.rejectPartRequest(detailId);
+    btn.disabled = false; btn.textContent = 'TOLAK';
+
+    if (res && res.ok) {
+      showToast('REQUEST DITOLAK.', 'error');
+      closeModal('approveModal');
+      loadPartRequests();
+    } else {
+      errEl.textContent = res?.data?.message || 'GAGAL MENOLAK REQUEST.';
+      errEl.style.display = 'block';
+    }
+  }
+
+  // ── SEKSI 2: Manajemen Stok ──
+  async function loadParts(page = 1) {
+    partPage = page;
+    const tbody = $('partTable');
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">MEMUAT DATA...</td></tr>';
+
+    const params = { per_page: 20, page };
+    const search = $('partSearch').value.trim();
+    if (search) params.search = search;
+    if ($('filterLow').checked) params.low_stock = 1;
+
+    const res = await API.getSpareparts(params);
+    if (!res || !res.ok) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">GAGAL MEMUAT DATA SPAREPART</td></tr>';
+      return;
+    }
+
+    const paged = res.data.data;
+    const parts = paged?.data || paged || [];
+
+    if (!parts.length) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">TIDAK ADA DATA SPAREPART</td></tr>';
+      renderPages(1, 1);
+      return;
+    }
+
+    tbody.innerHTML = '';
+    parts.forEach(p => {
+      // NOTIFIKASI STOK KRITIS: stok < 10 ATAU di bawah batas_minimum
+      const isCrit = parseInt(p.stok_tersedia) < 10 || parseInt(p.stok_tersedia) <= parseInt(p.batas_minimum);
+      const row = document.createElement('tr');
+      if (isCrit) row.className = 'low-stock';
+
+      const stokDisplay = isCrit
+        ? `<span style="color:#dc2626;font-weight:900;font-size:1rem;">${p.stok_tersedia}</span>&nbsp;<span class="badge-crit">[STOK KRITIS]</span>`
+        : `<span style="color:#16a34a;font-weight:800;">${p.stok_tersedia}</span>`;
+
+      row.innerHTML = `
+        <td style="font-weight:700;">${p.id_part}</td>
+        <td style="font-weight:800;text-transform:uppercase;">${esc(p.nama_part)}</td>
+        <td>${stokDisplay}</td>
+        <td style="font-weight:600;">${p.batas_minimum}</td>
+        <td style="font-weight:700;">${fmtCur(p.harga_satuan)}</td>
+        <td>${isCrit ? '<span class="badge-crit">KRITIS</span>' : '<span class="badge-ok">OK</span>'}</td>
+        <td>
+          <button class="btn-ns btn-grn"
+            data-id="${p.id_part}"
+            data-nama="${esc(p.nama_part)}"
+            data-stok="${p.stok_tersedia}"
+            onclick="openRestockModal(this)">RESTOCK</button>
+        </td>`;
+      tbody.appendChild(row);
+    });
+
+    renderPages(paged?.current_page || 1, paged?.last_page || 1);
+  }
+
+  function renderPages(cp, lp) {
+    const bar = $('partPages');
+    let h = `<span style="font-size:0.8rem;font-weight:800;text-transform:uppercase;">HAL ${cp}/${lp}</span>`;
+    if (cp > 1) h = `<button class="btn-ns btn-sec" onclick="loadParts(${cp - 1})">PREV</button>` + h;
+    if (cp < lp) h += `<button class="btn-ns btn-sec" onclick="loadParts(${cp + 1})">NEXT</button>`;
+    bar.innerHTML = h;
+  }
+
+  function openRestockModal(btn) {
+    $('rs_nama').textContent = btn.dataset.nama;
+    $('rs_stok').textContent = btn.dataset.stok + ' PCS';
+    $('rs_qty').value = '';
+    $('restockModal').dataset.partId = btn.dataset.id;
+    $('restockModal').classList.add('open');
+  }
+
+  async function submitRestock() {
+    const errEl  = $('restockError');
+    const partId = parseInt($('restockModal').dataset.partId);
+    const qty    = parseInt($('rs_qty').value);
+    errEl.style.display = 'none';
+
+    if (!qty || qty < 1) { errEl.textContent = 'JUMLAH TAMBAH STOK MINIMAL 1.'; errEl.style.display = 'block'; return; }
+
+    const btn = $('btnRestockSubmit');
+    btn.disabled = true; btn.textContent = 'MENYIMPAN...';
+    const res = await API.restockSparepart(partId, { qty });
+    btn.disabled = false; btn.textContent = 'TAMBAH STOK';
+
+    if (res && res.ok) {
+      showToast(`RESTOCK BERHASIL. STOK DITAMBAH +${qty} PCS.`);
+      closeModal('restockModal');
+      loadParts(partPage);
+    } else {
+      errEl.textContent = res?.data?.message || 'GAGAL RESTOCK.';
+      errEl.style.display = 'block';
+    }
+  }
+
+  // Initial load
+  loadPartRequests();
+  loadParts();
+</script>
+</body>
+</html>
