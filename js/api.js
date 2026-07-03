@@ -53,7 +53,7 @@ const API = {
         return { ok: false, status: 0, data: { message: 'Request timeout. Periksa koneksi ke server.' } };
       }
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
-        return { ok: false, status: 0, data: { message: 'Tidak bisa terhubung ke server. Pastikan backend Laravel sudah berjalan di http://localhost:8000' } };
+        return { ok: false, status: 0, data: { message: 'Tidak bisa terhubung ke server. Pastikan backend Laravel sudah berjalan di https://grconnect-api.kesug.com/api' } };
       }
       return { ok: false, status: 0, data: { message: error.message } };
     }
