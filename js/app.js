@@ -102,11 +102,6 @@ function initMobileMenu() {
   // 1. Inject tombol hamburger ke .page-header-inner atau .page-hdr (fallback halaman sparepart)
   const headerInner = document.querySelector('.page-header-inner') || document.querySelector('.page-hdr');
   if (headerInner) {
-    // Pastikan elemen header memakai Flexbox agar tombol & judul sejajar
-    headerInner.style.display = 'flex';
-    headerInner.style.alignItems = 'center';
-    headerInner.style.gap = '15px';
-
     const hamburger = document.createElement('button');
     hamburger.id = 'hamburger-btn';
     hamburger.className = 'hamburger-btn';
@@ -114,7 +109,22 @@ function initMobileMenu() {
     hamburger.innerHTML = '&#9776;';
     hamburger.style.display = 'inline-flex';
     hamburger.addEventListener('click', handleHamburgerClick);
-    headerInner.insertBefore(hamburger, headerInner.firstChild);
+
+    // Ambil elemen judul (first child)
+    const titleDiv = headerInner.firstElementChild;
+    // Jika ada judul dan bukan elemen page-actions, wrap mereka agar alignment rapi
+    if (titleDiv && !titleDiv.classList.contains('page-actions')) {
+      const leftGroup = document.createElement('div');
+      leftGroup.style.display = 'flex';
+      leftGroup.style.alignItems = 'center';
+      leftGroup.style.gap = '15px';
+      
+      headerInner.insertBefore(leftGroup, titleDiv);
+      leftGroup.appendChild(hamburger);
+      leftGroup.appendChild(titleDiv);
+    } else {
+      headerInner.insertBefore(hamburger, headerInner.firstChild);
+    }
   }
 
   // 2. Buat overlay (hanya dipakai di mobile)
@@ -195,16 +205,18 @@ const Utils = {
 
   statusBadge: (status) => {
     const labels = {
-      antrean: 'Antrean',
-      dikerjakan: 'Dikerjakan',
-      nunggu_part: 'Nunggu Part',
+      antrean:           'Antrean',
+      dikerjakan:        'Dikerjakan',
+      nunggu_part:       'Nunggu Part',
+      menunggu_audit:    'Menunggu Audit',
+      audit_ditolak:     'Audit Ditolak',
       nunggu_pembayaran: 'Nunggu Bayar',
-      selesai: 'Selesai',
-      lunas: 'Lunas',
-      belum_lunas: 'Belum Lunas',
-      pending: 'Pending',
-      approved: 'Approved',
-      rejected: 'Rejected',
+      selesai:           'Selesai',
+      lunas:             'Lunas',
+      belum_lunas:       'Belum Lunas',
+      pending:           'Pending',
+      approved:          'Approved',
+      rejected:          'Rejected',
     };
     return `<span class="badge badge-${status}">${labels[status] || status}</span>`;
   },

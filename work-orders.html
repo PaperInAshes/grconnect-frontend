@@ -1,933 +1,1243 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Work Order — GR-Connect</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css" />
-  <style>
-    /* Tambahan Styling NASCAR: Flat, Blocky, Bold */
-    .btn-nascar {
-      border-radius: 0;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border: 2px solid transparent;
-    }
-    .btn-nascar:hover {
-      border: 2px solid #000;
-    }
-  </style>
-</head>
-<body>
-<div class="app-layout">
-  <div id="sidebar-container"></div>
+  <!DOCTYPE html>
+  <html lang="id">
 
-  <div class="main-content">
-    <div class="page-header" style="border-bottom: 4px solid #000; padding-bottom: 10px;">
-      <div class="page-header-inner">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Work Order — GR-Connect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      /* Tambahan Styling NASCAR: Flat, Blocky, Bold */
+      .btn-nascar {
+        border-radius: 0;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border: 2px solid transparent;
+      }
+
+      .btn-nascar:hover {
+        border: 2px solid #000;
+      }
+
+      /* ── PRINT AREA (selalu tersembunyi di layar) ── */
+      #print-area {
+        display: none;
+      }
+
+      /* ── CETAK NOTA: Hanya #print-area yang tercetak ── */
+      @media print {
+        /* Sembunyikan seluruh halaman web */
+        body > * { display: none !important; }
+
+        /* Tampilkan hanya area nota */
+        #print-area {
+          display: block !important;
+          font-family: 'Arial', sans-serif;
+          font-size: 11pt;
+          color: #000;
+          width: 100%;
+          margin: 0;
+          padding: 0;
+        }
+
+        /* Header nota */
+        #print-area .nota-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          border-bottom: 3px solid #000;
+          padding-bottom: 12px;
+          margin-bottom: 16px;
+        }
+
+        #print-area .nota-header .brand-name {
+          font-size: 22pt;
+          font-weight: 900;
+          letter-spacing: 2px;
+          color: #000;
+        }
+
+        #print-area .nota-header .brand-sub {
+          font-size: 9pt;
+          color: #333;
+          margin-top: 2px;
+        }
+
+        #print-area .nota-header .nota-meta {
+          text-align: right;
+          font-size: 9pt;
+        }
+
+        #print-area .nota-meta strong {
+          font-size: 14pt;
+          display: block;
+          letter-spacing: 1px;
+        }
+
+        /* Section info kendaraan & customer */
+        #print-area .nota-info {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0 32px;
+          border: 1px solid #000;
+          padding: 10px 12px;
+          margin-bottom: 16px;
+          font-size: 10pt;
+        }
+
+        #print-area .nota-info .info-row {
+          display: flex;
+          gap: 8px;
+          padding: 2px 0;
+        }
+
+        #print-area .nota-info .info-label {
+          font-weight: 700;
+          min-width: 110px;
+          color: #333;
+        }
+
+        /* Tabel sparepart */
+        #print-area .nota-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 16px;
+          font-size: 10pt;
+        }
+
+        #print-area .nota-table th {
+          background: #000;
+          color: #fff;
+          padding: 7px 10px;
+          text-align: left;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        #print-area .nota-table td {
+          border: 1px solid #ccc;
+          padding: 6px 10px;
+        }
+
+        #print-area .nota-table tr:nth-child(even) td {
+          background: #f7f7f7;
+        }
+
+        /* Ringkasan biaya */
+        #print-area .nota-summary {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          margin-bottom: 24px;
+        }
+
+        #print-area .summary-row {
+          display: flex;
+          justify-content: space-between;
+          width: 280px;
+          padding: 4px 0;
+          font-size: 10pt;
+          border-bottom: 1px dashed #aaa;
+        }
+
+        #print-area .summary-row.grand {
+          border-bottom: 3px solid #000;
+          border-top: 3px solid #000;
+          font-size: 13pt;
+          font-weight: 900;
+          padding: 6px 0;
+          margin-top: 4px;
+        }
+
+        /* Footer tanda tangan */
+        #print-area .nota-footer {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 16px;
+          margin-top: 32px;
+          text-align: center;
+          font-size: 10pt;
+        }
+
+        #print-area .nota-footer .sign-box {
+          border: 1px solid #000;
+          padding: 12px 8px;
+        }
+
+        #print-area .nota-footer .sign-title {
+          font-weight: 700;
+          text-transform: uppercase;
+          border-bottom: 1px solid #000;
+          padding-bottom: 6px;
+          margin-bottom: 60px;
+        }
+
+        #print-area .nota-footer .sign-name {
+          font-size: 9pt;
+          border-top: 1px solid #000;
+          padding-top: 4px;
+          font-weight: 600;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app-layout">
+      <div id="sidebar-container"></div>
+
+      <div class="main-content">
+        <div class="page-header">
+          <div class="page-header-inner">
+            <div>
+              <h1 class="page-title">WORK ORDER</h1>
+              <p class="page-subtitle">Sistem Manajemen Bengkel Utama</p>
+            </div>
+            <div class="page-actions" id="page-actions"></div>
+          </div>
+        </div>
+
+        <div class="page-body">
+          <div class="table-card">
+            <div class="table-card-header">
+              <div class="table-card-title">DAFTAR WORK ORDER</div>
+              <div class="table-filters">
+                <label id="filterMyWoContainer"
+                  style="display: none; align-items: center; gap: 6px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; cursor: pointer; color: var(--white);">
+                  <input type="checkbox" id="filterMyWo" onchange="loadWorkOrders()" style="accent-color: var(--red);" />
+                  HANYA TAMPILKAN WO SAYA
+                </label>
+                <select class="filter-input" id="filterStatus" onchange="loadWorkOrders()">
+                  <option value="">SEMUA STATUS</option>
+                  <option value="antrean">ANTREAN</option>
+                  <option value="dikerjakan">DIKERJAKAN</option>
+                  <option value="nunggu_part">NUNGGU PART</option>
+                  <option value="menunggu_audit">MENUNGGU AUDIT</option>
+                  <option value="audit_ditolak">AUDIT DITOLAK</option>
+                  <option value="nunggu_pembayaran">NUNGGU PEMBAYARAN</option>
+                  <option value="selesai">SELESAI</option>
+                </select>
+                <input type="text" class="filter-input" id="filterPlat" placeholder="CARI PLAT NOMOR..."
+                  oninput="debounceLoad()" />
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Plat Nomor</th>
+                    <th>Customer</th>
+                    <th>Kendaraan</th>
+                    <th>CA</th>
+                    <th>Mekanik</th>
+                    <th>Tanggal</th>
+                    <th>Status</th>
+                    <th>Pembayaran</th>
+                    <th style="text-align: center;">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="woTable"></tbody>
+              </table>
+            </div>
+            <div
+              style="padding:16px 20px; border-top: 3px solid var(--border); background: var(--light-gray); display:flex; justify-content:space-between; align-items:center;">
+              <span id="paginationInfo"
+                style="font-size:0.8rem; font-weight: 700; color: var(--dark-gray); text-transform: uppercase;"></span>
+              <div style="display:flex; gap:8px;" id="paginationBtns"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-container"></div>
+
+    <!-- ── AREA CETAK NOTA (tersembunyi, hanya muncul saat print) ── -->
+    <div id="print-area">
+      <div class="nota-header">
         <div>
-          <h1 class="page-title" style="text-transform: uppercase; font-weight: 800;">WORK ORDER</h1>
-          <p class="page-subtitle" style="text-transform: uppercase; font-size: 0.8rem; color: #555;">Sistem Manajemen Bengkel Utama</p>
+          <div class="brand-name">GR-CONNECT</div>
+          <div class="brand-sub">Bengkel Resmi &mdash; Sistem Manajemen Workshop</div>
+          <div class="brand-sub" id="pn-tanggal"></div>
         </div>
-        <div class="page-actions" id="page-actions"></div>
+        <div class="nota-meta">
+          <strong>NOTA SERVIS</strong>
+          <span>No. WO: <b id="pn-id"></b></span><br>
+          <span>Status: <b id="pn-status"></b></span>
+        </div>
+      </div>
+      <div class="nota-info">
+        <div class="info-row"><span class="info-label">Plat Nomor</span><span id="pn-plat"></span></div>
+        <div class="info-row"><span class="info-label">Customer</span><span id="pn-customer"></span></div>
+        <div class="info-row"><span class="info-label">Kendaraan</span><span id="pn-kendaraan"></span></div>
+        <div class="info-row"><span class="info-label">No. Telp</span><span id="pn-telp"></span></div>
+        <div class="info-row"><span class="info-label">Keluhan Awal</span><span id="pn-keluhan"></span></div>
+        <div class="info-row"><span class="info-label">Kerusakan Aktual</span><span id="pn-kerusakan"></span></div>
+        <div class="info-row"><span class="info-label">Mekanik</span><span id="pn-mekanik"></span></div>
+        <div class="info-row"><span class="info-label">Service Advisor</span><span id="pn-ca"></span></div>
+      </div>
+      <table class="nota-table">
+        <thead>
+          <tr>
+            <th style="width:40%;">Nama Sparepart</th>
+            <th style="text-align:center;">Qty</th>
+            <th style="text-align:right;">Harga/Pcs</th>
+            <th style="text-align:right;">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody id="pn-parts">
+          <tr><td colspan="4" style="text-align:center;">Tidak ada pemakaian sparepart</td></tr>
+        </tbody>
+      </table>
+      <div class="nota-summary">
+        <div class="summary-row"><span>Biaya Jasa</span><span id="pn-jasa"></span></div>
+        <div class="summary-row"><span>Biaya Sparepart</span><span id="pn-parts-total"></span></div>
+        <div class="summary-row grand"><span>GRAND TOTAL</span><span id="pn-grand"></span></div>
+      </div>
+      <div class="nota-footer">
+        <div class="sign-box"><div class="sign-title">Customer</div><div class="sign-name" id="pn-sign-customer"></div></div>
+        <div class="sign-box"><div class="sign-title">Service Advisor</div><div class="sign-name" id="pn-sign-ca"></div></div>
+        <div class="sign-box"><div class="sign-title">Kasir</div><div class="sign-name">( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</div></div>
       </div>
     </div>
 
-    <div class="page-body">
-      <div class="table-card" style="border: 2px solid #000; border-radius: 0;">
-        <div class="table-card-header" style="background: #f3f4f6; border-bottom: 2px solid #000;">
-          <div class="table-card-title" style="font-weight: 800; text-transform: uppercase;">DAFTAR WORK ORDER</div>
-          <div class="table-filters">
-            <select class="filter-input" id="filterStatus" onchange="loadWorkOrders()" style="border-radius: 0; border: 1px solid #000; font-weight: 600;">
-              <option value="">SEMUA STATUS</option>
-              <option value="antrean">ANTREAN</option>
-              <option value="dikerjakan">DIKERJAKAN</option>
-              <option value="nunggu_part">NUNGGU PART</option>
-              <option value="nunggu_pembayaran">NUNGGU PEMBAYARAN</option>
-              <option value="selesai">SELESAI</option>
-            </select>
-            <input type="text" class="filter-input" id="filterPlat" placeholder="CARI PLAT NOMOR..." oninput="debounceLoad()" style="width:200px; border-radius: 0; border: 1px solid #000; font-weight: 600; text-transform: uppercase;" />
-          </div>
-        </div>
-        <div class="table-wrapper" style="overflow-x: auto; width: 100%;">
-          <table style="border-collapse: collapse; width: 100%; min-width: 900px;">
-            <thead style="background: #111; color: #fff; text-transform: uppercase;">
-              <tr>
-                <th style="padding: 12px; text-align: left;">ID</th>
-                <th style="padding: 12px; text-align: left;">Plat Nomor</th>
-                <th style="padding: 12px; text-align: left;">Customer</th>
-                <th style="padding: 12px; text-align: left;">Kendaraan</th>
-                <th style="padding: 12px; text-align: left;">CA</th>
-                <th style="padding: 12px; text-align: left;">Mekanik</th>
-                <th style="padding: 12px; text-align: left;">Tanggal</th>
-                <th style="padding: 12px; text-align: left;">Status</th>
-                <th style="padding: 12px; text-align: left;">Pembayaran</th>
-                <th style="padding: 12px; text-align: center; white-space: nowrap;">Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="woTable"></tbody>
-          </table>
-        </div>
-        <div style="padding:16px 20px; border-top: 2px solid #000; background: #f3f4f6; display:flex; justify-content:space-between; align-items:center;">
-          <span id="paginationInfo" style="font-size:0.8rem; font-weight: 800; text-transform: uppercase; color: #000;"></span>
-          <div style="display:flex; gap:8px;" id="paginationBtns"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+      document.getElementById('sidebar-container').innerHTML = renderSidebar('workorders');
 
-<div id="modal-container"></div>
+      let currentPage = 1;
+      let debounceTimer = null;
 
-<script src="js/config.js"></script>
-<script src="js/api.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/app.js"></script>
-<script>
-  document.getElementById('sidebar-container').innerHTML = renderSidebar('workorders');
-
-  let currentPage = 1;
-  let debounceTimer = null;
-
-  // ── Tombol Buat WO (hanya untuk CA & Manager) ──
-  if (Auth.hasRole('ca', 'manager')) {
-    document.getElementById('page-actions').innerHTML =
-      `<button class="btn btn-primary btn-nascar" style="background:#dc2626; color:#fff;" onclick="showCreateWOModal()">+ BUAT WORK ORDER</button>`;
-  }
-
-  // ── Load Work Orders ──
-  async function loadWorkOrders(page = 1) {
-    currentPage = page;
-    const tbody  = document.getElementById('woTable');
-    Utils.showLoading(tbody);
-
-    const params = { page, per_page: 10 };
-    const filterSel = document.getElementById('filterStatus');
-    const status    = filterSel ? filterSel.value : '';
-    const plat      = document.getElementById('filterPlat').value.trim();
-
-    // Kasir: jika tidak ada filter manual, default ke nunggu_pembayaran
-    // agar antrean pembayaran langsung terlihat. Kasir tetap bisa pilih
-    // 'SEMUA STATUS' (value="") dari dropdown untuk melihat seluruh WO.
-    if (status) {
-      // Ada pilihan eksplisit dari user → pakai langsung (termasuk jika Kasir
-      // sengaja pilih "SEMUA STATUS" → value="" → blok ini tidak dimasuki)
-      params.status = status;
-    } else if (Auth.hasRole('kasir') && !Auth.hasRole('manager')) {
-      // Kasir, belum ada filter manual → gunakan default nunggu_pembayaran
-      params.status = 'nunggu_pembayaran';
-      // Sync ke dropdown agar user tahu filter aktif
-      if (filterSel && filterSel.value === '') {
-        filterSel.value = 'nunggu_pembayaran';
+      // ── Tombol Buat WO (hanya untuk CA & Manager) ──
+      if (Auth.hasRole('ca', 'manager')) {
+        document.getElementById('page-actions').innerHTML =
+          `<button class="btn btn-primary btn-nascar" style="background:#dc2626; color:#fff;" onclick="showCreateWOModal()">+ BUAT WORK ORDER</button>`;
       }
-    }
-    if (plat) params.plat_nomor = plat;
 
-    const res = await API.getWorkOrders(params);
+      if (Auth.hasRole('ca')) {
+        const myWoContainer = document.getElementById('filterMyWoContainer');
+        if (myWoContainer) myWoContainer.style.display = 'flex';
+      }
+
+      // ── Load Work Orders ──
+      async function loadWorkOrders(page = 1) {
+        currentPage = page;
+        const tbody = document.getElementById('woTable');
+        Utils.showLoading(tbody);
+
+        const params = { page, per_page: 10 };
+        const filterSel = document.getElementById('filterStatus');
+        const status = filterSel ? filterSel.value : '';
+        const plat = document.getElementById('filterPlat').value.trim();
+
+        // Kasir: jika tidak ada filter manual, default ke nunggu_pembayaran
+        // agar antrean pembayaran langsung terlihat. Kasir tetap bisa pilih
+        // 'SEMUA STATUS' (value="") dari dropdown untuk melihat seluruh WO.
+        if (status) {
+          // Ada pilihan eksplisit dari user → pakai langsung (termasuk jika Kasir
+          // sengaja pilih "SEMUA STATUS" → value="" → blok ini tidak dimasuki)
+          params.status = status;
+        } else if (Auth.hasRole('kasir') && !Auth.hasRole('manager')) {
+          // Kasir, belum ada filter manual → gunakan default nunggu_pembayaran
+          params.status = 'nunggu_pembayaran';
+          // Sync ke dropdown agar user tahu filter aktif
+          if (filterSel && filterSel.value === '') {
+            filterSel.value = 'nunggu_pembayaran';
+          }
+        }
+        if (plat) params.plat_nomor = plat;
+
+        const myWo = document.getElementById('filterMyWo');
+        if (myWo && myWo.checked) {
+          params.my_wo = 'true';
+        }
+
+        const res = await API.getWorkOrders(params);
 
 
-    if (!res || !res.ok) {
-      tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:#dc2626; padding:20px; font-weight:800;">GAGAL MEMUAT DATA SERVER</td></tr>`;
-      return;
-    }
+        if (!res || !res.ok) {
+          tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:#dc2626; padding:20px; font-weight:800;">GAGAL MEMUAT DATA SERVER</td></tr>`;
+          return;
+        }
 
-    const pageData = res.data.data;
-    const wos = pageData.data;
-    const { total, last_page, current_page, per_page } = pageData;
+        const pageData = res.data.data;
+        const wos = pageData.data;
+        const { total, last_page, current_page, per_page } = pageData;
 
-    if (!wos || wos.length === 0) {
-      Utils.showEmpty(tbody, 'TIDAK ADA DATA WORK ORDER');
-      document.getElementById('paginationInfo').textContent = '';
-      document.getElementById('paginationBtns').innerHTML  = '';
-      return;
-    }
+        if (!wos || wos.length === 0) {
+          Utils.showEmpty(tbody, 'TIDAK ADA DATA WORK ORDER');
+          document.getElementById('paginationInfo').textContent = '';
+          document.getElementById('paginationBtns').innerHTML = '';
+          return;
+        }
 
-    tbody.innerHTML = wos.map(wo => {
-      const canUpdateProgress = Auth.hasRole('mekanik', 'ca', 'manager');
-      const canPayment        = Auth.hasRole('kasir', 'manager');
-      const canDeduct         = Auth.hasRole('mekanik', 'sparepart', 'manager');
-      const needsAssign       = !wo.mekanik && Auth.hasRole('ca', 'manager');
-      const isActive          = !['selesai', 'nunggu_pembayaran'].includes(wo.status_wo);
-      const canEstimasi       = Auth.hasRole('mekanik', 'manager')
-                                && (wo.status_wo === 'dikerjakan' || wo.status_wo === 'nunggu_part')
-                                && wo.id_user_mekanik;
-      const canAudit          = Auth.hasRole('ca', 'manager')
-                                && (wo.status_wo === 'dikerjakan' || wo.status_wo === 'nunggu_part');
+        tbody.innerHTML = wos.map(wo => {
+          const canUpdateProgress = Auth.hasRole('mekanik', 'ca', 'manager');
+          const canPayment = Auth.hasRole('kasir', 'manager');
+          const canDeduct = Auth.hasRole('mekanik', 'sparepart', 'manager');
+          const needsAssign = !wo.mekanik && Auth.hasRole('ca', 'manager');
+          // WO masih aktif selama belum masuk antrian bayar/selesai
+          const isActive    = !['selesai', 'nunggu_pembayaran'].includes(wo.status_wo);
+          // Estimasi bisa diajukan/direvisi saat dikerjakan, nunggu_part, atau setelah audit ditolak
+          const canEstimasi = Auth.hasRole('mekanik', 'manager')
+            && ['dikerjakan', 'nunggu_part', 'audit_ditolak'].includes(wo.status_wo)
+            && wo.id_user_mekanik;
+          // CA hanya bisa audit setelah mekanik submit estimasi (status = menunggu_audit)
+          const canAudit    = Auth.hasRole('ca', 'manager')
+            && wo.status_wo === 'menunggu_audit';
 
-      const mekanikRender = wo.mekanik
-        ? `<span style="font-weight:700; text-transform:uppercase;">${Utils.escapeHtml(wo.mekanik.nama_lengkap)}</span>`
-        : `<span style="background:#dc2626; color:#fff; padding:4px 8px; font-size:0.75rem; font-weight:800; letter-spacing:0.05em;">BELUM ASSIGN</span>`;
+          const mekanikRender = wo.mekanik
+            ? `<span style="font-weight:700; text-transform:uppercase;">${Utils.escapeHtml(wo.mekanik.nama_lengkap)}</span>`
+            : `<span style="background:#dc2626; color:#fff; padding:4px 8px; font-size:0.75rem; font-weight:800; letter-spacing:0.05em;">BELUM ASSIGN</span>`;
 
-      // Susun item dropdown berdasarkan role & kondisi WO
-      let menuItems = '';
-      menuItems += `<button class="kebab-item" onclick="showWODetail(${wo.id_wo}); closeAllKebab()">DETAIL WO</button>`;
-      if (needsAssign)
-        menuItems += `<button class="kebab-item item-yellow" onclick="showAssignModal(${wo.id_wo}); closeAllKebab()">ASSIGN MEKANIK</button>`;
-      if (canUpdateProgress && isActive)
-        menuItems += `<button class="kebab-item item-blue" onclick="showUpdateProgressModal(${wo.id_wo}); closeAllKebab()">UPDATE PROGRES</button>`;
-      if (canDeduct && isActive)
-        menuItems += `<button class="kebab-item" onclick="showRequestPartModal(${wo.id_wo}); closeAllKebab()">REQUEST PART</button>`;
-      if (canEstimasi)
-        menuItems += `<button class="kebab-item item-purple" onclick="showEstimasiModal(${wo.id_wo}, ${wo.estimasi_biaya_jasa || 0}); closeAllKebab()">ESTIMASI BIAYA</button>`;
-      if (canAudit)
-        menuItems += `<button class="kebab-item item-orange" onclick="showAuditModal(${wo.id_wo}, ${wo.estimasi_biaya_jasa || 0}); closeAllKebab()">AUDIT CA</button>`;
-      if (canPayment && wo.status_wo === 'nunggu_pembayaran' && wo.status_pembayaran === 'belum_lunas')
-        menuItems += `<button class="kebab-item item-green" onclick="showPaymentModal(${wo.id_wo}); closeAllKebab()">KONFIRMASI BAYAR</button>`;
+          // Susun item dropdown berdasarkan role & kondisi WO
+          let menuItems = '';
+          menuItems += `<button class="kebab-item" onclick="showWODetail(${wo.id_wo}); closeAllKebab()">DETAIL WO</button>`;
+          if (needsAssign)
+            menuItems += `<button class="kebab-item item-yellow" onclick="showAssignModal(${wo.id_wo}); closeAllKebab()">ASSIGN MEKANIK</button>`;
+          if (canUpdateProgress && isActive)
+            menuItems += `<button class="kebab-item item-blue" onclick="showUpdateProgressModal(${wo.id_wo}); closeAllKebab()">UPDATE PROGRES</button>`;
+          if (canDeduct && isActive)
+            menuItems += `<button class="kebab-item" onclick="showRequestPartModal(${wo.id_wo}); closeAllKebab()">REQUEST PART</button>`;
+          if (canEstimasi)
+            menuItems += `<button class="kebab-item item-purple" onclick="showEstimasiModal(${wo.id_wo}, ${wo.estimasi_biaya_jasa || 0}); closeAllKebab()">ESTIMASI BIAYA</button>`;
+          if (canAudit)
+            menuItems += `<button class="kebab-item item-orange" onclick="showAuditModal(${wo.id_wo}, ${wo.estimasi_biaya_jasa || 0}); closeAllKebab()">AUDIT CA</button>`;
+          if (canPayment && wo.status_wo === 'nunggu_pembayaran' && wo.status_pembayaran === 'belum_lunas')
+            menuItems += `<button class="kebab-item item-green" onclick="showPaymentModal(${wo.id_wo}); closeAllKebab()">KONFIRMASI BAYAR</button>`;
+          const _user = Auth.getUser();
+          const _canCetak = _user && ['ca','manager'].includes(_user.role) && ['nunggu_pembayaran','selesai'].includes(wo.status_wo);
+          if (_canCetak)
+            menuItems += `<button class="kebab-item" style="color:#1d4ed8; font-weight:800;" onclick="printWorkOrder(${wo.id_wo}); closeAllKebab()">🖨 CETAK NOTA</button>`;
 
-      return `
+          return `
+          <tr style="border-bottom: 1px solid #d1d5db;">
+            <td class="td-main" style="font-weight:800;">#${wo.id_wo}</td>
+            <td><code style="background:#e5e7eb; padding:4px 8px; font-size:0.9rem; font-weight:800; border: 1px solid #000; white-space:nowrap; display:inline-block; min-width:max-content;">${wo.plat_nomor}</code></td>
+            <td style="font-weight:600;">${Utils.escapeHtml(wo.kendaraan?.customer?.nama_customer || '-')}</td>
+            <td style="font-size:0.85rem; font-weight:600; text-transform:uppercase;">
+              ${Utils.escapeHtml(wo.kendaraan?.merk_mobil || '')} ${Utils.escapeHtml(wo.kendaraan?.model_mobil || '')}
+              <br><span style="color:#555;">${wo.kendaraan?.tahun_produksi || ''}</span>
+            </td>
+            <td style="font-weight:600;">${Utils.escapeHtml(wo.user_c_a?.nama_lengkap || '-')}</td>
+            <td>${mekanikRender}</td>
+            <td style="font-size:0.85rem; font-weight:600;">${Utils.formatDate(wo.tanggal_masuk)}</td>
+            <td>${Utils.statusBadge(wo.status_wo)}</td>
+            <td>${Utils.statusBadge(wo.status_pembayaran)}</td>
+            <td style="text-align:center;">
+              <div class="kebab-wrapper">
+                <button class="kebab-btn" onclick="toggleKebab(this)" title="Buka Menu Aksi">AKSI &#9660;</button>
+                <div class="kebab-menu">
+                  ${menuItems}
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+        }).join('');
+
+
+        // Pagination
+        const from = (current_page - 1) * per_page + 1;
+        const to = Math.min(current_page * per_page, total);
+        document.getElementById('paginationInfo').textContent = `MENAMPILKAN ${from}–${to} DARI ${total} DATA`;
+
+        let pBtns = '';
+        if (current_page > 1) pBtns += `<button class="btn btn-secondary btn-sm btn-nascar" onclick="loadWorkOrders(${current_page - 1})">PREV</button>`;
+        pBtns += `<span style="font-size:0.9rem; font-weight:800; color:#000; align-self:center;">HAL ${current_page}/${last_page}</span>`;
+        if (current_page < last_page) pBtns += `<button class="btn btn-secondary btn-sm btn-nascar" onclick="loadWorkOrders(${current_page + 1})">NEXT</button>`;
+        document.getElementById('paginationBtns').innerHTML = pBtns;
+      }
+
+      function debounceLoad() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => loadWorkOrders(1), 400);
+      }
+
+      // ── Detail WO ──
+      async function showWODetail(id) {
+        const res = await API.getWorkOrder(id);
+        if (!res || !res.ok) { Toast.error('GAGAL MEMUAT DETAIL WO'); return; }
+        const wo = res.data.data;
+
+        const partsRows = wo.detail_parts?.map(d => `
         <tr style="border-bottom: 1px solid #d1d5db;">
-          <td class="td-main" style="font-weight:800;">#${wo.id_wo}</td>
-          <td><code style="background:#e5e7eb; padding:4px 8px; font-size:0.9rem; font-weight:800; border: 1px solid #000; white-space:nowrap; display:inline-block; min-width:max-content;">${wo.plat_nomor}</code></td>
-          <td style="font-weight:600;">${Utils.escapeHtml(wo.kendaraan?.customer?.nama_customer || '-')}</td>
-          <td style="font-size:0.85rem; font-weight:600; text-transform:uppercase;">
-            ${Utils.escapeHtml(wo.kendaraan?.merk_mobil || '')} ${Utils.escapeHtml(wo.kendaraan?.model_mobil || '')}
-            <br><span style="color:#555;">${wo.kendaraan?.tahun_produksi || ''}</span>
-          </td>
-          <td style="font-weight:600;">${Utils.escapeHtml(wo.user_c_a?.nama_lengkap || '-')}</td>
-          <td>${mekanikRender}</td>
-          <td style="font-size:0.85rem; font-weight:600;">${Utils.formatDate(wo.tanggal_masuk)}</td>
-          <td>${Utils.statusBadge(wo.status_wo)}</td>
-          <td>${Utils.statusBadge(wo.status_pembayaran)}</td>
-          <td style="text-align:center;">
-            <div class="kebab-wrapper">
-              <button class="kebab-btn" onclick="toggleKebab(this)" title="Buka Menu Aksi">AKSI &#9660;</button>
-              <div class="kebab-menu">
-                ${menuItems}
-              </div>
-            </div>
-          </td>
+          <td style="padding: 8px; font-weight:600; text-transform:uppercase;">${Utils.escapeHtml(d.sparepart?.nama_part || d.id_part)}</td>
+          <td style="padding: 8px; font-weight:800;">${d.qty_pakai}</td>
+          <td style="padding: 8px;">${Utils.formatCurrency(d.harga_satuan_snapshot)}</td>
+          <td style="padding: 8px; font-weight:800;">${Utils.formatCurrency(d.subtotal_harga)}</td>
         </tr>
-      `;
-    }).join('');
+      `).join('') || '<tr><td colspan="4" style="text-align:center; padding: 10px; font-weight:600; text-transform:uppercase;">TIDAK ADA SPAREPART</td></tr>';
 
-
-    // Pagination
-    const from = (current_page - 1) * per_page + 1;
-    const to   = Math.min(current_page * per_page, total);
-    document.getElementById('paginationInfo').textContent = `MENAMPILKAN ${from}–${to} DARI ${total} DATA`;
-
-    let pBtns = '';
-    if (current_page > 1) pBtns += `<button class="btn btn-secondary btn-sm btn-nascar" onclick="loadWorkOrders(${current_page - 1})">PREV</button>`;
-    pBtns += `<span style="font-size:0.9rem; font-weight:800; color:#000; align-self:center;">HAL ${current_page}/${last_page}</span>`;
-    if (current_page < last_page) pBtns += `<button class="btn btn-secondary btn-sm btn-nascar" onclick="loadWorkOrders(${current_page + 1})">NEXT</button>`;
-    document.getElementById('paginationBtns').innerHTML = pBtns;
-  }
-
-  function debounceLoad() {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => loadWorkOrders(1), 400);
-  }
-
-  // ── Detail WO ──
-  async function showWODetail(id) {
-    const res = await API.getWorkOrder(id);
-    if (!res || !res.ok) { Toast.error('GAGAL MEMUAT DETAIL WO'); return; }
-    const wo = res.data.data;
-
-    const partsRows = wo.detail_parts?.map(d => `
-      <tr style="border-bottom: 1px solid #d1d5db;">
-        <td style="padding: 8px; font-weight:600; text-transform:uppercase;">${Utils.escapeHtml(d.sparepart?.nama_part || d.id_part)}</td>
-        <td style="padding: 8px; font-weight:800;">${d.qty_pakai}</td>
-        <td style="padding: 8px;">${Utils.formatCurrency(d.harga_satuan_snapshot)}</td>
-        <td style="padding: 8px; font-weight:800;">${Utils.formatCurrency(d.subtotal_harga)}</td>
-      </tr>
-    `).join('') || '<tr><td colspan="4" style="text-align:center; padding: 10px; font-weight:600; text-transform:uppercase;">TIDAK ADA SPAREPART</td></tr>';
-
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay';
-    modal.id = 'detailModal';
-    modal.innerHTML = `
-      <div class="modal" style="max-width:700px; border-radius:0; border: 4px solid #000;">
-        <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
-          <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">DETAIL WO #${wo.id_wo}</div>
-          <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('detailModal')">X</button>
-        </div>
-        <div class="modal-body" style="background:#fff;">
-          <div class="detail-section" style="border: 2px solid #000; padding: 12px; margin-bottom: 16px;">
-            <div class="detail-section-title" style="font-weight:800; text-transform:uppercase; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 8px;">KENDARAAN & CUSTOMER</div>
-            <div class="detail-grid">
-              <div class="detail-item"><div class="detail-key">PLAT NOMOR</div><div class="detail-value" style="font-weight:800;">${wo.plat_nomor}</div></div>
-              <div class="detail-item"><div class="detail-key">CUSTOMER</div><div class="detail-value">${Utils.escapeHtml(wo.kendaraan?.customer?.nama_customer || '-')}</div></div>
-              <div class="detail-item"><div class="detail-key">KENDARAAN</div><div class="detail-value">${Utils.escapeHtml(wo.kendaraan?.merk_mobil)} ${Utils.escapeHtml(wo.kendaraan?.model_mobil)} (${wo.kendaraan?.tahun_produksi})</div></div>
-              <div class="detail-item"><div class="detail-key">TELEPON</div><div class="detail-value">${wo.kendaraan?.customer?.no_telepon || '-'}</div></div>
-            </div>
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.id = 'detailModal';
+        modal.innerHTML = `
+        <div class="modal" style="max-width:700px; border-radius:0; border: 4px solid #000;">
+          <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
+            <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">DETAIL WO #${wo.id_wo}</div>
+            <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('detailModal')">X</button>
           </div>
-          <div class="detail-section" style="border: 2px solid #000; padding: 12px; margin-bottom: 16px;">
-            <div class="detail-section-title" style="font-weight:800; text-transform:uppercase; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 8px;">STATUS OPERASIONAL</div>
-            <div class="detail-grid">
-              <div class="detail-item"><div class="detail-key">STATUS WO</div><div class="detail-value">${Utils.statusBadge(wo.status_wo)}</div></div>
-              <div class="detail-item"><div class="detail-key">PEMBAYARAN</div><div class="detail-value">${Utils.statusBadge(wo.status_pembayaran)}</div></div>
-              <div class="detail-item"><div class="detail-key">TANGGAL MASUK</div><div class="detail-value">${Utils.formatDate(wo.tanggal_masuk)}</div></div>
-              <div class="detail-item"><div class="detail-key">CA</div><div class="detail-value" style="font-weight:800;">${Utils.escapeHtml(wo.user_c_a?.nama_lengkap || '-')}</div></div>
-              <div class="detail-item"><div class="detail-key">MEKANIK</div><div class="detail-value" style="font-weight:800;">${Utils.escapeHtml(wo.mekanik?.nama_lengkap || 'BELUM ASSIGN')}</div></div>
-            </div>
-          </div>
-          <div class="detail-section" style="border: 2px solid #000; padding: 12px; margin-bottom: 16px;">
-            <div class="detail-section-title" style="font-weight:800; text-transform:uppercase; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 8px;">PEMAKAIAN SPAREPART</div>
-            <table style="width:100%; border-collapse: collapse;">
-              <thead><tr style="background:#f3f4f6; border-bottom: 2px solid #000;">
-                <th style="padding:8px; text-align:left; font-size:0.8rem; font-weight:800; text-transform:uppercase;">NAMA PART</th>
-                <th style="padding:8px; text-align:left; font-size:0.8rem; font-weight:800; text-transform:uppercase;">QTY</th>
-                <th style="padding:8px; text-align:left; font-size:0.8rem; font-weight:800; text-transform:uppercase;">HARGA/PCS</th>
-                <th style="padding:8px; text-align:left; font-size:0.8rem; font-weight:800; text-transform:uppercase;">SUBTOTAL</th>
-              </tr></thead>
-              <tbody>${partsRows}</tbody>
-            </table>
-          </div>
-          <div class="detail-section" style="border: 2px solid #000; padding: 12px; background: #f9fafb;">
-            <div class="detail-section-title" style="font-weight:800; text-transform:uppercase; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 8px;">RINGKASAN BIAYA</div>
-            <div class="total-row" style="font-weight:600;"><span class="total-label">BIAYA JASA</span><span class="total-value">${Utils.formatCurrency(wo.total_biaya_jasa)}</span></div>
-            <div class="total-row" style="font-weight:600;"><span class="total-label">BIAYA SPAREPART</span><span class="total-value">${Utils.formatCurrency(wo.total_biaya_parts)}</span></div>
-            <div class="total-row grand" style="font-weight:900; font-size: 1.2rem; border-top: 2px solid #000; padding-top: 8px; margin-top: 8px;"><span class="total-label">GRAND TOTAL</span><span class="total-value">${Utils.formatCurrency(wo.grand_total)}</span></div>
-          </div>
-        </div>
-        <div class="modal-footer" style="border-top: 2px solid #000; border-radius:0;">
-          <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('detailModal')">TUTUP</button>
-        </div>
-      </div>`;
-    document.body.appendChild(modal);
-  }
-
-  // ── Buat WO ──
-  async function showCreateWOModal() {
-    const userRes = await API.getMechanics();
-    const mekaniks = (userRes?.ok ? userRes.data.data : []) || [];
-    const mekanikOptions = mekaniks.map(m => `<option value="${m.id_user}">${Utils.escapeHtml(m.nama_lengkap)}</option>`).join('');
-
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay'; modal.id = 'createWOModal';
-    modal.innerHTML = `
-      <div class="modal" style="border-radius:0; border: 4px solid #000;">
-        <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
-          <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">BUAT WORK ORDER BARU</div>
-          <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('createWOModal')">X</button>
-        </div>
-        <div class="modal-body" style="background:#fff;">
-          <div id="createWOError" class="alert alert-error" style="display:none; border-radius:0; border: 2px solid #dc2626; font-weight:700;"></div>
-          
-          <div style="font-size:0.85rem; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; border-bottom:2px solid #000; padding-bottom:4px; margin-bottom:12px;">DATA CUSTOMER</div>
-          <div class="form-row">
-            <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Nama Customer *</label><div class="input-wrapper"><input type="text" id="wo_nama_customer" style="border-radius:0; border:2px solid #000;" /></div></div>
-            <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">No. Telepon *</label><div class="input-wrapper"><input type="text" id="wo_no_telepon" style="border-radius:0; border:2px solid #000;" /></div></div>
-          </div>
-          
-          <div style="font-size:0.85rem; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; border-bottom:2px solid #000; padding-bottom:4px; margin:20px 0 12px;">DATA KENDARAAN</div>
-          <div class="form-row">
-            <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Plat Nomor *</label><div class="input-wrapper"><input type="text" id="wo_plat" style="border-radius:0; border:2px solid #000; text-transform:uppercase;" /></div></div>
-            <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Tahun *</label><div class="input-wrapper"><input type="number" id="wo_tahun" style="border-radius:0; border:2px solid #000;" /></div></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Merk *</label><div class="input-wrapper"><input type="text" id="wo_merk" style="border-radius:0; border:2px solid #000; text-transform:uppercase;" /></div></div>
-            <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Model *</label><div class="input-wrapper"><input type="text" id="wo_model" style="border-radius:0; border:2px solid #000; text-transform:uppercase;" /></div></div>
-          </div>
-          
-          <div style="font-size:0.85rem; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; border-bottom:2px solid #000; padding-bottom:4px; margin:20px 0 12px;">WORK ORDER</div>
-          <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Keluhan Awal *</label><textarea id="wo_keluhan" rows="3" style="width:100%; padding:10px 14px; border:2px solid #000; border-radius:0; font-family:var(--font); resize:vertical; outline:none; text-transform:uppercase;"></textarea></div>
-          <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Assign Mekanik (Opsional)</label>
-            <select id="wo_mekanik" style="width:100%; padding:10px 14px; border:2px solid #000; border-radius:0; outline:none; font-weight:700; text-transform:uppercase;">
-              <option value="">-- PILIH MEKANIK --</option>${mekanikOptions}
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer" style="border-top:2px solid #000; border-radius:0;">
-          <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('createWOModal')">BATAL</button>
-          <button class="btn btn-primary btn-nascar" style="background:#dc2626; color:#fff;" id="submitCreateWO" onclick="submitCreateWO()">SIMPAN</button>
-        </div>
-      </div>`;
-    document.body.appendChild(modal);
-  }
-
-  async function submitCreateWO() {
-    const btn = document.getElementById('submitCreateWO');
-    btn.disabled = true; btn.textContent = 'PROSES...';
-    const errDiv = document.getElementById('createWOError');
-    errDiv.style.display = 'none'; errDiv.textContent = '';
-
-    // Baca nilai field
-    const namaCustomer  = document.getElementById('wo_nama_customer').value.trim();
-    const noTelepon     = document.getElementById('wo_no_telepon').value.trim();
-    const platNomor     = document.getElementById('wo_plat').value.trim().toUpperCase();
-    const tahunStr      = document.getElementById('wo_tahun').value.trim();
-    const merkMobil     = document.getElementById('wo_merk').value.trim().toUpperCase();
-    const modelMobil    = document.getElementById('wo_model').value.trim().toUpperCase();
-    const keluhanAwal   = document.getElementById('wo_keluhan').value.trim().toUpperCase();
-    const mekanikIdStr  = document.getElementById('wo_mekanik').value;
-
-    // Validasi frontend agar tidak mengirim data kosong / NaN ke backend
-    const missingFields = [];
-    if (!namaCustomer)  missingFields.push('NAMA CUSTOMER');
-    if (!noTelepon)     missingFields.push('NO. TELEPON');
-    if (!platNomor)     missingFields.push('PLAT NOMOR');
-    if (!tahunStr)      missingFields.push('TAHUN PRODUKSI');
-    if (!merkMobil)     missingFields.push('MERK KENDARAAN');
-    if (!modelMobil)    missingFields.push('MODEL KENDARAAN');
-    if (!keluhanAwal)   missingFields.push('KELUHAN AWAL');
-
-    if (missingFields.length > 0) {
-      errDiv.textContent = 'KOLOM WAJIB BELUM DIISI: ' + missingFields.join(', ') + '.';
-      errDiv.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'SIMPAN';
-      return;
-    }
-
-    const tahunProduksi = parseInt(tahunStr, 10);
-    if (isNaN(tahunProduksi) || tahunProduksi < 1970 || tahunProduksi > new Date().getFullYear() + 1) {
-      errDiv.textContent = 'TAHUN PRODUKSI TIDAK VALID (MIN 1970).';
-      errDiv.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'SIMPAN';
-      return;
-    }
-
-    if (noTelepon.length > 15) {
-      errDiv.textContent = 'NO. TELEPON MAKSIMAL 15 KARAKTER.';
-      errDiv.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'SIMPAN';
-      return;
-    }
-
-    // Bangun payload — id_user_mekanik dikirim sebagai integer, bukan string
-    const data = {
-      nama_customer:  namaCustomer,
-      no_telepon:     noTelepon,
-      plat_nomor:     platNomor,
-      tahun_produksi: tahunProduksi,
-      merk_mobil:     merkMobil,
-      model_mobil:    modelMobil,
-      keluhan_awal:   keluhanAwal,
-    };
-    // Hanya sertakan jika mekanik dipilih — kirim sebagai integer, bukan string
-    if (mekanikIdStr) {
-      data.id_user_mekanik = parseInt(mekanikIdStr, 10);
-    }
-
-    const res = await API.createWorkOrder(data);
-    btn.disabled = false; btn.textContent = 'SIMPAN';
-
-    if (res && res.ok) {
-      Toast.success('WORK ORDER BERHASIL DIBUAT!');
-      Utils.closeModal('createWOModal');
-      loadWorkOrders(1);
-    } else {
-      const errors = res?.data?.errors;
-      const msg    = errors ? Object.values(errors).flat().join(' | ') : (res?.data?.message || 'GAGAL MENYIMPAN.');
-      errDiv.textContent = msg; errDiv.style.display = 'block';
-    }
-  }
-
-  // ── Assign Mekanik Manual (Fitur Baru) ──
-  // ── Assign Mekanik Manual (Fitur Baru) ──
-  async function showAssignModal(woId) {
-    const userRes = await API.getMechanics();
-    const mekaniks = (userRes?.ok ? userRes.data.data : []) || [];
-    const mekanikOptions = mekaniks.map(m => `<option value="${m.id_user}">${Utils.escapeHtml(m.nama_lengkap).toUpperCase()}</option>`).join('');
-
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay'; modal.id = 'assignModal';
-    modal.innerHTML = `
-      <div class="modal" style="max-width:400px; border-radius:0; border: 4px solid #000;">
-        <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
-          <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">ASSIGN MEKANIK - WO #${woId}</div>
-          <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('assignModal')">X</button>
-        </div>
-        <div class="modal-body" style="background:#fff;">
-          <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Pilih Mekanik *</label>
-            <select id="assign_mekanik_id" style="width:100%; padding:10px 14px; border:2px solid #000; border-radius:0; outline:none; font-weight:700; text-transform:uppercase;">
-              <option value="">-- PILIH MEKANIK --</option>${mekanikOptions}
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer" style="border-top:2px solid #000; border-radius:0;">
-          <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('assignModal')">BATAL</button>
-          <button class="btn btn-primary btn-nascar" style="background:#facc15; color:#000;" onclick="submitAssign(${woId})">TETAPKAN</button>
-        </div>
-      </div>`;
-    document.body.appendChild(modal);
-  }
-  
-  async function submitAssign(woId) {
-    const mekanikId = document.getElementById('assign_mekanik_id').value;
-    if(!mekanikId) { alert('PILIH MEKANIK TERLEBIH DAHULU'); return; }
-
-    const res = await API.assignMechanic(woId, { id_user_mekanik: mekanikId });
-    if (res && res.ok) {
-      Toast.success('MEKANIK BERHASIL DITETAPKAN');
-      Utils.closeModal('assignModal');
-      loadWorkOrders(currentPage);
-    } else {
-      alert('GAGAL MENETAPKAN MEKANIK');
-    }
-  }
-
-  // ── Update Progress ──
-  async function showUpdateProgressModal(woId) {
-    // Ambil data terbaru WO agar currentStatus & kerusakan selalu akurat
-    const detailRes = await API.getWorkOrder(woId);
-    if (!detailRes || !detailRes.ok) { Toast.error('GAGAL MEMUAT DATA WO'); return; }
-    const woDetail = detailRes.data.data;
-    const currentStatus = woDetail.status_wo;
-    const currentKerusakan = woDetail.kerusakan_aktual || '';
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay'; modal.id = 'progressModal';
-    modal.innerHTML = `
-      <div class="modal" style="max-width:460px; border-radius:0; border: 4px solid #000;">
-        <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
-          <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">UPDATE PROGRES WO #${woId}</div>
-          <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('progressModal')">X</button>
-        </div>
-        <div class="modal-body" style="background:#fff;">
-          <div id="progressError" class="alert alert-error" style="display:none; border-radius:0; border:2px solid #dc2626;"></div>
-          <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Status Baru *</label>
-            <select id="prog_status" style="width:100%; padding:10px 14px; border:2px solid #000; border-radius:0; font-weight:700; text-transform:uppercase; outline:none;">
-              <option value="dikerjakan" ${currentStatus==='dikerjakan'?'selected':''}>SEDANG DIKERJAKAN</option>
-              <option value="nunggu_part" ${currentStatus==='nunggu_part'?'selected':''}>MENUNGGU PART</option>
-            </select>
-          </div>
-          <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Kerusakan Aktual</label>
-            <textarea id="prog_kerusakan" rows="4" style="width:100%; padding:10px 14px; border:2px solid #000; border-radius:0; text-transform:uppercase; outline:none; resize:vertical;">${currentKerusakan || ''}</textarea>
-          </div>
-        </div>
-        <div class="modal-footer" style="border-top:2px solid #000; border-radius:0;">
-          <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('progressModal')">BATAL</button>
-          <button class="btn btn-primary btn-nascar" style="background:#2563eb; color:#fff;" id="submitProgress" onclick="submitProgress(${woId})">SIMPAN PROGRES</button>
-        </div>
-      </div>`;
-    document.body.appendChild(modal);
-  }
-
-  async function submitProgress(woId) {
-    const btn = document.getElementById('submitProgress');
-    btn.disabled = true; btn.textContent = 'PROSES...';
-
-    const status = document.getElementById('prog_status').value;
-    const data   = {
-      status_wo:        status,
-      kerusakan_aktual: document.getElementById('prog_kerusakan').value.trim().toUpperCase(),
-    };
-
-    const res = await API.updateProgress(woId, data);
-    btn.disabled = false; btn.textContent = 'SIMPAN PROGRES';
-
-    if (res && res.ok) {
-      Toast.success('PROGRES BERHASIL DIUPDATE');
-      Utils.closeModal('progressModal');
-      loadWorkOrders(currentPage);
-    } else {
-      const msg = res?.data?.message || 'GAGAL UPDATE PROGRES.';
-      document.getElementById('progressError').textContent = msg;
-      document.getElementById('progressError').style.display = 'block';
-    }
-  }
-
-  // ── REQUEST SPAREPART (SOP BARU) ──
-  // allPartsCache: daftar semua sparepart untuk live search filter
-  let allPartsCache = [];
-
-  async function showRequestPartModal(woId) {
-    // Tampilkan modal lebih dulu, kemudian load sparepart di background
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay'; modal.id = 'requestPartModal';
-    modal.innerHTML = `
-      <div class="modal" style="max-width:460px; border-radius:0; border:4px solid #000;">
-        <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
-          <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">REQUEST SPAREPART &mdash; WO #${woId}</div>
-          <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('requestPartModal')">X</button>
-        </div>
-        <div class="modal-body" style="background:#fff;">
-          <div id="reqPartError" class="alert alert-error" style="display:none; border-radius:0; border:2px solid #dc2626; font-weight:700;"></div>
-          <div style="background:#fef9c3; border:2px solid #d97706; padding:10px 14px; font-size:0.8rem; font-weight:700; text-transform:uppercase; color:#92400e; margin-bottom:16px;">
-            PERHATIAN: REQUEST INI BELUM MEMOTONG STOK. GUDANG AKAN MEMPROSES DAN MENG-ACC PERMINTAAN INI.
-          </div>
-          <div class="form-group">
-            <label style="font-weight:700; text-transform:uppercase; display:block; margin-bottom:6px;">CARI SPAREPART</label>
-            <input type="text" id="reqPartSearch"
-              style="width:100%; padding:10px 14px; border:2px solid #000; border-radius:0; font-family:var(--font); font-weight:700; text-transform:uppercase; outline:none; margin-bottom:8px;"
-              placeholder="KETIK NAMA PART..."
-              oninput="filterPartOptions()" />
-            <select id="reqPartSelect"
-              style="width:100%; padding:10px 14px; border:2px solid #000; border-radius:0; font-weight:700; text-transform:uppercase; outline:none;">
-              <option value="">MEMUAT DAFTAR SPAREPART...</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label style="font-weight:700; text-transform:uppercase;">JUMLAH YANG DIBUTUHKAN (QTY) *</label>
-            <div class="input-wrapper">
-              <input type="number" id="reqPartQty"
-                style="border-radius:0; border:2px solid #000;"
-                min="1" placeholder="Contoh: 2" />
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer" style="border-top:2px solid #000; border-radius:0;">
-          <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('requestPartModal')">BATAL</button>
-          <button class="btn btn-danger btn-nascar" style="background:#111; color:#fff;" id="submitRequestPart" onclick="submitRequestPart(${woId})">AJUKAN REQUEST</button>
-        </div>
-      </div>`;
-    document.body.appendChild(modal);
-
-    // Load sparepart ke cache dan isi select
-    const partRes = await API.getSpareparts({ per_page: 200 });
-    allPartsCache = (partRes?.ok ? (partRes.data.data?.data || partRes.data.data || []) : []);
-    renderPartOptions(allPartsCache);
-  }
-
-  function renderPartOptions(parts) {
-    const sel = document.getElementById('reqPartSelect');
-    if (!sel) return;
-    if (!parts.length) {
-      sel.innerHTML = '<option value="">TIDAK ADA PART TERSEDIA</option>';
-      return;
-    }
-    sel.innerHTML = '<option value="">-- PILIH SPAREPART --</option>' +
-      parts.map(p => {
-        const critLabel = parseInt(p.stok_tersedia) <= parseInt(p.batas_minimum || 0)
-          ? ' [KRITIS]' : '';
-        return `<option value="${p.id_part}">[STOK: ${p.stok_tersedia}${critLabel}] ${Utils.escapeHtml(p.nama_part).toUpperCase()}</option>`;
-      }).join('');
-  }
-
-  function filterPartOptions() {
-    const keyword = document.getElementById('reqPartSearch')?.value.trim().toUpperCase() || '';
-    if (!keyword) {
-      renderPartOptions(allPartsCache);
-      return;
-    }
-    const filtered = allPartsCache.filter(p =>
-      p.nama_part.toUpperCase().includes(keyword)
-    );
-    renderPartOptions(filtered);
-  }
-
-  async function submitRequestPart(woId) {
-    const btn    = document.getElementById('submitRequestPart');
-    const errDiv = document.getElementById('reqPartError');
-    btn.disabled = true; btn.textContent = 'PROSES...';
-    errDiv.style.display = 'none';
-
-    const partId = parseInt(document.getElementById('reqPartSelect').value);
-    const qty    = parseInt(document.getElementById('reqPartQty').value);
-
-    if (!partId) {
-      errDiv.textContent = 'PILIH SPAREPART TERLEBIH DAHULU.';
-      errDiv.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'AJUKAN REQUEST';
-      return;
-    }
-    if (!qty || qty < 1) {
-      errDiv.textContent = 'JUMLAH QTY MINIMAL 1.';
-      errDiv.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'AJUKAN REQUEST';
-      return;
-    }
-
-    const res = await API.requestPart(woId, { id_part: partId, qty_pakai: qty });
-    btn.disabled = false; btn.textContent = 'AJUKAN REQUEST';
-
-    if (res && res.ok) {
-      Toast.success('REQUEST BERHASIL DIAJUKAN. MENUNGGU ACC DARI DEPARTEMEN GUDANG.');
-      Utils.closeModal('requestPartModal');
-      loadWorkOrders(currentPage);
-    } else {
-      errDiv.textContent = res?.data?.message || 'GAGAL MENGAJUKAN REQUEST.';
-      errDiv.style.display = 'block';
-    }
-  }
-
-  // ── TAHAP 2: Estimasi Mekanik ──
-  async function showEstimasiModal(woId, currentEstimasi) {
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay'; modal.id = 'estimasiModal';
-    modal.innerHTML = `
-      <div class="modal" style="max-width:420px; border-radius:0; border:4px solid #000;">
-        <div class="modal-header" style="background:#7c3aed; color:#fff; border-radius:0;">
-          <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">AJUKAN ESTIMASI BIAYA &mdash; WO #${woId}</div>
-          <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('estimasiModal')">X</button>
-        </div>
-        <div class="modal-body" style="background:#fff;">
-          <div id="estimasiError" class="alert alert-error" style="display:none; border-radius:0; border:2px solid #dc2626; font-weight:700;"></div>
-          <div style="border-left:4px solid #7c3aed; padding:8px 12px; margin-bottom:16px; background:#f5f3ff;">
-            <div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:#555;">ESTIMASI SAAT INI</div>
-            <div style="font-size:1.2rem; font-weight:900; color:#000;">${Utils.formatCurrency(currentEstimasi)}</div>
-          </div>
-          <div class="form-group">
-            <label style="font-weight:800; text-transform:uppercase;">ESTIMASI TOTAL BIAYA JASA (RP) *</label>
-            <div class="input-wrapper">
-              <input type="number" id="estimasi_biaya" style="border-radius:0; border:2px solid #000; font-size:1.1rem; font-weight:800;" min="0" value="${currentEstimasi || ''}" placeholder="Contoh: 250000" />
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer" style="border-top:2px solid #000; border-radius:0;">
-          <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('estimasiModal')">BATAL</button>
-          <button class="btn btn-primary btn-nascar" style="background:#7c3aed; color:#fff;" id="submitEstimasi" onclick="submitEstimasi(${woId})">AJUKAN ESTIMASI</button>
-        </div>
-      </div>`;
-    document.body.appendChild(modal);
-  }
-
-  async function submitEstimasi(woId) {
-    const btn = document.getElementById('submitEstimasi');
-    btn.disabled = true; btn.textContent = 'PROSES...';
-    const errDiv = document.getElementById('estimasiError');
-
-    const biaya = parseFloat(document.getElementById('estimasi_biaya').value);
-    if (isNaN(biaya) || biaya < 0) {
-      errDiv.textContent = 'ESTIMASI BIAYA WAJIB DIISI DAN TIDAK BOLEH NEGATIF.';
-      errDiv.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'AJUKAN ESTIMASI';
-      return;
-    }
-
-    const res = await API.ajukanEstimasi(woId, { estimasi_biaya_jasa: biaya });
-    btn.disabled = false; btn.textContent = 'AJUKAN ESTIMASI';
-
-    if (res && res.ok) {
-      Toast.success('ESTIMASI BERHASIL DIAJUKAN. MENUNGGU AUDIT CA.');
-      Utils.closeModal('estimasiModal');
-      loadWorkOrders(currentPage);
-    } else {
-      errDiv.textContent = res?.data?.message || 'GAGAL MENGAJUKAN ESTIMASI.';
-      errDiv.style.display = 'block';
-    }
-  }
-
-  // ── TAHAP 4: Audit CA ──
-  async function showAuditModal(woId, currentEstimasi) {
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay'; modal.id = 'auditModal';
-    modal.innerHTML = `
-      <div class="modal" style="max-width:500px; border-radius:0; border:4px solid #000;">
-        <div class="modal-header" style="background:#d97706; color:#000; border-radius:0;">
-          <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">AUDIT CA &mdash; WO #${woId}</div>
-          <button class="modal-close" style="color:#000;" onclick="Utils.closeModal('auditModal')">X</button>
-        </div>
-        <div class="modal-body" style="background:#fff;">
-          <div id="auditError" class="alert alert-error" style="display:none; border-radius:0; border:2px solid #dc2626; font-weight:700;"></div>
-
-          <div style="background:#fefce8; border:2px solid #d97706; padding:12px; margin-bottom:16px;">
-            <div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:#555;">ESTIMASI DARI MEKANIK</div>
-            <div style="font-size:1.6rem; font-weight:900; color:#000;">${Utils.formatCurrency(currentEstimasi)}</div>
-          </div>
-
-          <div class="form-group">
-            <label style="font-weight:800; text-transform:uppercase; display:block; margin-bottom:8px;">KEPUTUSAN AUDIT *</label>
-            <div style="display:flex; gap:8px;">
-              <button type="button" id="btnApprove" onclick="setAuditDecision('approved')"
-                style="flex:1; padding:14px; border:3px solid #000; background:#fff; color:#16a34a; font-weight:900; text-transform:uppercase; font-size:0.9rem; cursor:pointer; letter-spacing:0.05em;">
-                SETUJUI
-              </button>
-              <button type="button" id="btnReject" onclick="setAuditDecision('rejected')"
-                style="flex:1; padding:14px; border:3px solid #000; background:#fff; color:#dc2626; font-weight:900; text-transform:uppercase; font-size:0.9rem; cursor:pointer; letter-spacing:0.05em;">
-                TOLAK
-              </button>
-            </div>
-            <input type="hidden" id="audit_keputusan" value="" />
-          </div>
-
-          <div id="approveFields" style="display:none;">
-            <div class="form-group">
-              <label style="font-weight:800; text-transform:uppercase;">HARGA JASA FINAL (RP)</label>
-              <div style="font-size:0.75rem; font-weight:600; color:#555; text-transform:uppercase; margin-bottom:6px;">KOSONGKAN UNTUK PAKAI ESTIMASI MEKANIK</div>
-              <div class="input-wrapper">
-                <input type="number" id="audit_harga_final" style="border-radius:0; border:2px solid #000; font-size:1.1rem; font-weight:800;" min="0" placeholder="${currentEstimasi}" />
+          <div class="modal-body" style="background:#fff;">
+            <div class="detail-section" style="border: 2px solid #000; padding: 12px; margin-bottom: 16px;">
+              <div class="detail-section-title" style="font-weight:800; text-transform:uppercase; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 8px;">KENDARAAN & CUSTOMER</div>
+              <div class="detail-grid">
+                <div class="detail-item"><div class="detail-key">PLAT NOMOR</div><div class="detail-value" style="font-weight:800;">${wo.plat_nomor}</div></div>
+                <div class="detail-item"><div class="detail-key">CUSTOMER</div><div class="detail-value">${Utils.escapeHtml(wo.kendaraan?.customer?.nama_customer || '-')}</div></div>
+                <div class="detail-item"><div class="detail-key">KENDARAAN</div><div class="detail-value">${Utils.escapeHtml(wo.kendaraan?.merk_mobil)} ${Utils.escapeHtml(wo.kendaraan?.model_mobil)} (${wo.kendaraan?.tahun_produksi})</div></div>
+                <div class="detail-item"><div class="detail-key">TELEPON</div><div class="detail-value">${wo.kendaraan?.customer?.no_telepon || '-'}</div></div>
               </div>
             </div>
-          </div>
-
-          <div id="rejectFields" style="display:none;">
-            <div class="form-group">
-              <label style="font-weight:800; text-transform:uppercase;">CATATAN PENOLAKAN *</label>
-              <textarea id="audit_catatan" rows="3" style="width:100%; padding:10px 14px; border:2px solid #000; border-radius:0; font-family:var(--font); resize:vertical; outline:none; font-weight:700; text-transform:uppercase;" placeholder="ALASAN PENOLAKAN ESTIMASI..."></textarea>
+            <div class="detail-section" style="border: 2px solid #000; padding: 12px; margin-bottom: 16px;">
+              <div class="detail-section-title" style="font-weight:800; text-transform:uppercase; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 8px;">STATUS OPERASIONAL</div>
+              <div class="detail-grid">
+                <div class="detail-item"><div class="detail-key">STATUS WO</div><div class="detail-value">${Utils.statusBadge(wo.status_wo)}</div></div>
+                <div class="detail-item"><div class="detail-key">PEMBAYARAN</div><div class="detail-value">${Utils.statusBadge(wo.status_pembayaran)}</div></div>
+                <div class="detail-item"><div class="detail-key">STATUS AUDIT</div><div class="detail-value">${Utils.statusBadge(wo.status_audit_ca || 'pending')}</div></div>
+                <div class="detail-item"><div class="detail-key">TANGGAL MASUK</div><div class="detail-value">${Utils.formatDate(wo.tanggal_masuk)}</div></div>
+                <div class="detail-item"><div class="detail-key">CA</div><div class="detail-value" style="font-weight:800;">${Utils.escapeHtml(wo.user_c_a?.nama_lengkap || '-')}</div></div>
+                <div class="detail-item"><div class="detail-key">MEKANIK</div><div class="detail-value" style="font-weight:800;">${Utils.escapeHtml(wo.mekanik?.nama_lengkap || 'BELUM ASSIGN')}</div></div>
+              </div>
+            </div>
+            <div class="detail-section" style="border: 2px solid #000; padding: 12px; margin-bottom: 16px;">
+              <div class="detail-section-title" style="font-weight:800; text-transform:uppercase; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 8px;">LAPORAN KERUSAKAN</div>
+              <div class="detail-grid">
+                <div class="detail-item" style="grid-column: 1 / -1;"><div class="detail-key">KELUHAN AWAL (CA)</div><div class="detail-value" style="background:#f9fafb; padding:8px; border:1px solid #d1d5db; font-style:italic;">${Utils.escapeHtml(wo.keluhan_awal || '-')}</div></div>
+                <div class="detail-item" style="grid-column: 1 / -1;"><div class="detail-key">KERUSAKAN AKTUAL (MEKANIK)</div><div class="detail-value" style="background:#f9fafb; padding:8px; border:1px solid #d1d5db; font-style:italic;">${Utils.escapeHtml(wo.kerusakan_aktual || '-')}</div></div>
+                <div class="detail-item"><div class="detail-key">ESTIMASI BIAYA JASA</div><div class="detail-value" style="font-weight:800;">${Utils.formatCurrency(wo.estimasi_biaya_jasa)}</div></div>
+              </div>
+            </div>
+            ${ wo.status_audit_ca === 'rejected' ? `
+            <div class="detail-section" style="border: 2px solid #dc2626; padding: 12px; margin-bottom: 16px; background: #fff5f5;">
+              <div class="detail-section-title" style="font-weight:800; text-transform:uppercase; border-bottom: 2px solid #dc2626; padding-bottom: 8px; margin-bottom: 8px; color:#dc2626;">⚠ AUDIT DITOLAK — CATATAN CA</div>
+              <p style="font-weight:700; color:#dc2626; margin:0; line-height:1.6;">${Utils.escapeHtml(wo.catatan_ca || 'Tidak ada catatan.')}</p>
+            </div>` : '' }
+            <div class="detail-section" style="border: 2px solid #000; padding: 12px; margin-bottom: 16px;">
+              <div class="detail-section-title" style="font-weight:800; text-transform:uppercase; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 8px;">PEMAKAIAN SPAREPART</div>
+              <table style="width:100%; border-collapse: collapse;">
+                <thead><tr style="background:#f3f4f6; border-bottom: 2px solid #000;">
+                  <th style="padding:8px; text-align:left; font-size:0.8rem; font-weight:800; text-transform:uppercase;">NAMA PART</th>
+                  <th style="padding:8px; text-align:left; font-size:0.8rem; font-weight:800; text-transform:uppercase;">QTY</th>
+                  <th style="padding:8px; text-align:left; font-size:0.8rem; font-weight:800; text-transform:uppercase;">HARGA/PCS</th>
+                  <th style="padding:8px; text-align:left; font-size:0.8rem; font-weight:800; text-transform:uppercase;">SUBTOTAL</th>
+                </tr></thead>
+                <tbody>${partsRows}</tbody>
+              </table>
+            </div>
+            <div class="detail-section" style="border: 2px solid #000; padding: 12px; background: #f9fafb;">
+              <div class="detail-section-title" style="font-weight:800; text-transform:uppercase; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 8px;">RINGKASAN BIAYA</div>
+              <div class="total-row" style="font-weight:600;"><span class="total-label">BIAYA JASA</span><span class="total-value">${Utils.formatCurrency(wo.total_biaya_jasa)}</span></div>
+              <div class="total-row" style="font-weight:600;"><span class="total-label">BIAYA SPAREPART</span><span class="total-value">${Utils.formatCurrency(wo.total_biaya_parts)}</span></div>
+              <div class="total-row grand" style="font-weight:900; font-size: 1.2rem; border-top: 2px solid #000; padding-top: 8px; margin-top: 8px;"><span class="total-label">GRAND TOTAL</span><span class="total-value">${Utils.formatCurrency(wo.grand_total)}</span></div>
             </div>
           </div>
-        </div>
-        <div class="modal-footer" style="border-top:2px solid #000; border-radius:0;">
-          <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('auditModal')">BATAL</button>
-          <button class="btn btn-primary btn-nascar" style="background:#d97706; color:#000;" id="submitAudit" onclick="submitAudit(${woId})">PROSES AUDIT</button>
-        </div>
-      </div>`;
-    document.body.appendChild(modal);
-  }
-
-  function setAuditDecision(decision) {
-    document.getElementById('audit_keputusan').value = decision;
-    const isApprove = decision === 'approved';
-    document.getElementById('approveFields').style.display = isApprove ? 'block' : 'none';
-    document.getElementById('rejectFields').style.display  = isApprove ? 'none'  : 'block';
-    const btnA = document.getElementById('btnApprove');
-    const btnR = document.getElementById('btnReject');
-    btnA.style.background = isApprove ? '#16a34a' : '#fff';
-    btnA.style.color      = isApprove ? '#fff'    : '#16a34a';
-    btnR.style.background = isApprove ? '#fff'    : '#dc2626';
-    btnR.style.color      = isApprove ? '#dc2626' : '#fff';
-  }
-
-  async function submitAudit(woId) {
-    const btn = document.getElementById('submitAudit');
-    btn.disabled = true; btn.textContent = 'PROSES...';
-    const errDiv = document.getElementById('auditError');
-
-    const keputusan = document.getElementById('audit_keputusan').value;
-    if (!keputusan) {
-      errDiv.textContent = 'PILIH KEPUTUSAN AUDIT TERLEBIH DAHULU.';
-      errDiv.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'PROSES AUDIT';
-      return;
-    }
-
-    const payload = { status_audit_ca: keputusan };
-
-    if (keputusan === 'approved') {
-      const hargaFinal = document.getElementById('audit_harga_final').value;
-      if (hargaFinal) payload.total_biaya_jasa = parseFloat(hargaFinal);
-    } else {
-      const catatan = document.getElementById('audit_catatan').value.trim();
-      if (!catatan) {
-        errDiv.textContent = 'CATATAN PENOLAKAN WAJIB DIISI.';
-        errDiv.style.display = 'block';
-        btn.disabled = false; btn.textContent = 'PROSES AUDIT';
-        return;
+          <div class="modal-footer" style="border-top: 2px solid #000; border-radius:0; justify-content:space-between;">
+            <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('detailModal')">TUTUP</button>
+            ${ (['nunggu_pembayaran','selesai'].includes(wo.status_wo) && Auth.hasRole('ca','manager'))
+              ? `<button class="btn btn-nascar" style="background:#1d4ed8; color:#fff;" onclick="Utils.closeModal('detailModal'); printWorkOrder(${wo.id_wo})">🖨 CETAK NOTA</button>`
+              : '' }
+          </div>
+        </div>`;
+        document.body.appendChild(modal);
       }
-      payload.catatan_ca = catatan.toUpperCase();
-    }
 
-    const res = await API.auditCA(woId, payload);
-    btn.disabled = false; btn.textContent = 'PROSES AUDIT';
+      // ── Buat WO ──
+      async function showCreateWOModal() {
+        const userRes = await API.getMechanics();
+        const mekaniks = (userRes?.ok ? userRes.data.data : []) || [];
+        const mekanikOptions = mekaniks.map(m => `<option value="${m.id_user}">${Utils.escapeHtml(m.nama_lengkap)}</option>`).join('');
 
-    if (res && res.ok) {
-      const msg = keputusan === 'approved'
-        ? 'AUDIT DISETUJUI. WO MASUK ANTRIAN PEMBAYARAN.'
-        : 'AUDIT DITOLAK. WO DIKEMBALIKAN KE MEKANIK.';
-      Toast.success(msg);
-      Utils.closeModal('auditModal');
-      loadWorkOrders(currentPage);
-    } else {
-      errDiv.textContent = res?.data?.message || 'GAGAL MEMPROSES AUDIT.';
-      errDiv.style.display = 'block';
-    }
-  }
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay'; modal.id = 'createWOModal';
+        modal.innerHTML = `
+        <div class="modal" style="border-radius:0; border: 4px solid #000;">
+          <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
+            <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">BUAT WORK ORDER BARU</div>
+            <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('createWOModal')">X</button>
+          </div>
+          <div class="modal-body" style="background:#fff;">
+            <div id="createWOError" class="alert alert-error" style="display:none; border-radius:0; border: 2px solid #dc2626; font-weight:700;"></div>
+            
+            <div style="font-size:0.85rem; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; border-bottom:2px solid #000; padding-bottom:4px; margin-bottom:12px;">DATA CUSTOMER</div>
+            <div class="form-row">
+              <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Nama Customer *</label><div class="input-wrapper"><input type="text" id="wo_nama_customer" style="border-radius:0; border:2px solid #000;" /></div></div>
+              <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">No. Telepon *</label><div class="input-wrapper"><input type="text" id="wo_no_telepon" style="border-radius:0; border:2px solid #000;" /></div></div>
+            </div>
+            
+            <div style="font-size:0.85rem; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; border-bottom:2px solid #000; padding-bottom:4px; margin:20px 0 12px;">DATA KENDARAAN</div>
+            <div class="form-row">
+              <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Plat Nomor *</label><div class="input-wrapper"><input type="text" id="wo_plat" style="border-radius:0; border:2px solid #000; text-transform:uppercase;" /></div></div>
+              <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Tahun *</label><div class="input-wrapper"><input type="number" id="wo_tahun" style="border-radius:0; border:2px solid #000;" /></div></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Merk *</label><div class="input-wrapper"><input type="text" id="wo_merk" style="border-radius:0; border:2px solid #000; text-transform:uppercase;" /></div></div>
+              <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Model *</label><div class="input-wrapper"><input type="text" id="wo_model" style="border-radius:0; border:2px solid #000; text-transform:uppercase;" /></div></div>
+            </div>
+            
+            <div style="font-size:0.85rem; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; border-bottom:2px solid #000; padding-bottom:4px; margin:20px 0 12px;">WORK ORDER</div>
+            <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Keluhan Awal *</label><textarea id="wo_keluhan" rows="3" style="width:100%; padding:10px 14px; border:2px solid #000; border-radius:0; font-family:var(--font); resize:vertical; outline:none; text-transform:uppercase;"></textarea></div>
+            <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Assign Mekanik (Opsional)</label>
+              <select id="wo_mekanik" style="width:100%; padding:10px 14px; border:2px solid #000; border-radius:0; outline:none; font-weight:700; text-transform:uppercase;">
+                <option value="">-- PILIH MEKANIK --</option>${mekanikOptions}
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer" style="border-top:2px solid #000; border-radius:0;">
+            <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('createWOModal')">BATAL</button>
+            <button class="btn btn-primary btn-nascar" style="background:#dc2626; color:#fff;" id="submitCreateWO" onclick="submitCreateWO()">SIMPAN</button>
+          </div>
+        </div>`;
+        document.body.appendChild(modal);
+      }
 
-  // ── Payment Modal (Tahap 5: Kasir) ──
-  async function showPaymentModal(woId) {
-    const billRes = await API.getWOBill(woId);
-    if (!billRes || !billRes.ok) { Toast.error('GAGAL MEMUAT TAGIHAN'); return; }
-    const billData = billRes.data.data;
-    const wo       = billData.work_order || billData;
-    const summary  = billData.summary || {
-      total_biaya_jasa:  wo.total_biaya_jasa  || 0,
-      total_biaya_parts: wo.total_biaya_parts || 0,
-      grand_total:       wo.grand_total       || 0,
-    };
+      async function submitCreateWO() {
+        const btn = document.getElementById('submitCreateWO');
+        btn.disabled = true; btn.textContent = 'PROSES...';
+        const errDiv = document.getElementById('createWOError');
+        errDiv.style.display = 'none'; errDiv.textContent = '';
 
-    // Biaya jasa sudah di-lock oleh CA saat audit — tidak bisa diubah kasir
-    const jasaLocked = parseFloat(summary.total_biaya_jasa) || 0;
-    const partsTotal = parseFloat(summary.total_biaya_parts) || 0;
-    const grandTotal = jasaLocked + partsTotal;
+        // Baca nilai field
+        const namaCustomer = document.getElementById('wo_nama_customer').value.trim();
+        const noTelepon = document.getElementById('wo_no_telepon').value.trim();
+        const platNomor = document.getElementById('wo_plat').value.trim().toUpperCase();
+        const tahunStr = document.getElementById('wo_tahun').value.trim();
+        const merkMobil = document.getElementById('wo_merk').value.trim().toUpperCase();
+        const modelMobil = document.getElementById('wo_model').value.trim().toUpperCase();
+        const keluhanAwal = document.getElementById('wo_keluhan').value.trim().toUpperCase();
+        const mekanikIdStr = document.getElementById('wo_mekanik').value;
 
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay'; modal.id = 'paymentModal';
-    modal.innerHTML = `
-      <div class="modal" style="max-width:480px; border-radius:0; border:4px solid #000;">
-        <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
-          <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">PEMBAYARAN KASIR &mdash; WO #${woId}</div>
-          <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('paymentModal')">X</button>
-        </div>
-        <div class="modal-body" style="background:#fff;">
-          <div id="paymentError" class="alert alert-error" style="display:none; border-radius:0; border:2px solid #dc2626; font-weight:700;"></div>
+        // Validasi frontend agar tidak mengirim data kosong / NaN ke backend
+        const missingFields = [];
+        if (!namaCustomer) missingFields.push('NAMA CUSTOMER');
+        if (!noTelepon) missingFields.push('NO. TELEPON');
+        if (!platNomor) missingFields.push('PLAT NOMOR');
+        if (!tahunStr) missingFields.push('TAHUN PRODUKSI');
+        if (!merkMobil) missingFields.push('MERK KENDARAAN');
+        if (!modelMobil) missingFields.push('MODEL KENDARAAN');
+        if (!keluhanAwal) missingFields.push('KELUHAN AWAL');
 
-          <!-- Ringkasan Biaya Bersih -->
-          <div style="border:2px solid #000; background:#f3f4f6; margin-bottom:16px;">
-            <div style="background:#000; color:#fff; padding:8px 14px; font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;">RINCIAN TAGIHAN</div>
-            <div style="padding:14px;">
-              <div class="total-row" style="font-weight:700; text-transform:uppercase; padding:6px 0; border-bottom:1px solid #d1d5db;">
-                <span class="total-label" style="color:#555;">BIAYA JASA (DITETAPKAN CA)</span>
-                <span class="total-value" style="font-weight:900; color:#000;">${Utils.formatCurrency(jasaLocked)}</span>
-              </div>
-              <div class="total-row" style="font-weight:700; text-transform:uppercase; padding:6px 0;">
-                <span class="total-label" style="color:#555;">TOTAL SPAREPART</span>
-                <span class="total-value" style="font-weight:900; color:#000;">${Utils.formatCurrency(partsTotal)}</span>
+        if (missingFields.length > 0) {
+          errDiv.textContent = 'KOLOM WAJIB BELUM DIISI: ' + missingFields.join(', ') + '.';
+          errDiv.style.display = 'block';
+          btn.disabled = false; btn.textContent = 'SIMPAN';
+          return;
+        }
+
+        const tahunProduksi = parseInt(tahunStr, 10);
+        if (isNaN(tahunProduksi) || tahunProduksi < 1970 || tahunProduksi > new Date().getFullYear() + 1) {
+          errDiv.textContent = 'TAHUN PRODUKSI TIDAK VALID (MIN 1970).';
+          errDiv.style.display = 'block';
+          btn.disabled = false; btn.textContent = 'SIMPAN';
+          return;
+        }
+
+        if (noTelepon.length > 15) {
+          errDiv.textContent = 'NO. TELEPON MAKSIMAL 15 KARAKTER.';
+          errDiv.style.display = 'block';
+          btn.disabled = false; btn.textContent = 'SIMPAN';
+          return;
+        }
+
+        // Bangun payload — id_user_mekanik dikirim sebagai integer, bukan string
+        const data = {
+          nama_customer: namaCustomer,
+          no_telepon: noTelepon,
+          plat_nomor: platNomor,
+          tahun_produksi: tahunProduksi,
+          merk_mobil: merkMobil,
+          model_mobil: modelMobil,
+          keluhan_awal: keluhanAwal,
+        };
+        // Hanya sertakan jika mekanik dipilih — kirim sebagai integer, bukan string
+        if (mekanikIdStr) {
+          data.id_user_mekanik = parseInt(mekanikIdStr, 10);
+        }
+
+        const res = await API.createWorkOrder(data);
+        btn.disabled = false; btn.textContent = 'SIMPAN';
+
+        if (res && res.ok) {
+          Toast.success('WORK ORDER BERHASIL DIBUAT!');
+          Utils.closeModal('createWOModal');
+          loadWorkOrders(1);
+        } else {
+          const errors = res?.data?.errors;
+          const msg = errors ? Object.values(errors).flat().join(' | ') : (res?.data?.message || 'GAGAL MENYIMPAN.');
+          errDiv.textContent = msg; errDiv.style.display = 'block';
+        }
+      }
+
+      // ── Assign Mekanik Manual (Fitur Baru) ──
+      // ── Assign Mekanik Manual (Fitur Baru) ──
+      async function showAssignModal(woId) {
+        const userRes = await API.getMechanics();
+        const mekaniks = (userRes?.ok ? userRes.data.data : []) || [];
+        const mekanikOptions = mekaniks.map(m => `<option value="${m.id_user}">${Utils.escapeHtml(m.nama_lengkap).toUpperCase()}</option>`).join('');
+
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay'; modal.id = 'assignModal';
+        modal.innerHTML = `
+        <div class="modal" style="max-width:400px; border-radius:0; border: 4px solid #000;">
+          <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
+            <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">ASSIGN MEKANIK - WO #${woId}</div>
+            <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('assignModal')">X</button>
+          </div>
+          <div class="modal-body" style="background:#fff;">
+            <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Pilih Mekanik *</label>
+              <select id="assign_mekanik_id" style="width:100%; padding:10px 14px; border:2px solid #000; border-radius:0; outline:none; font-weight:700; text-transform:uppercase;">
+                <option value="">-- PILIH MEKANIK --</option>${mekanikOptions}
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer" style="border-top:2px solid #000; border-radius:0;">
+            <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('assignModal')">BATAL</button>
+            <button class="btn btn-primary btn-nascar" style="background:#facc15; color:#000;" onclick="submitAssign(${woId})">TETAPKAN</button>
+          </div>
+        </div>`;
+        document.body.appendChild(modal);
+      }
+
+      async function submitAssign(woId) {
+        const mekanikId = document.getElementById('assign_mekanik_id').value;
+        if (!mekanikId) { alert('PILIH MEKANIK TERLEBIH DAHULU'); return; }
+
+        const res = await API.assignMechanic(woId, { id_user_mekanik: mekanikId });
+        if (res && res.ok) {
+          Toast.success('MEKANIK BERHASIL DITETAPKAN');
+          Utils.closeModal('assignModal');
+          loadWorkOrders(currentPage);
+        } else {
+          alert('GAGAL MENETAPKAN MEKANIK');
+        }
+      }
+
+      // ── Update Progress ──
+      async function showUpdateProgressModal(woId) {
+        // Ambil data terbaru WO agar currentStatus & kerusakan selalu akurat
+        const detailRes = await API.getWorkOrder(woId);
+        if (!detailRes || !detailRes.ok) { Toast.error('GAGAL MEMUAT DATA WO'); return; }
+        const woDetail = detailRes.data.data;
+        const currentStatus = woDetail.status_wo;
+        const currentKerusakan = woDetail.kerusakan_aktual || '';
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay'; modal.id = 'progressModal';
+        modal.innerHTML = `
+        <div class="modal" style="max-width:460px; border-radius:0; border: 4px solid #000;">
+          <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
+            <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">UPDATE PROGRES WO #${woId}</div>
+            <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('progressModal')">X</button>
+          </div>
+          <div class="modal-body" style="background:#fff;">
+            <div id="progressError" class="alert alert-error" style="display:none; border-radius:0; border:2px solid #dc2626;"></div>
+            <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Status Baru *</label>
+              <select id="prog_status" style="width:100%; padding:10px 14px; border:2px solid #000; border-radius:0; font-weight:700; text-transform:uppercase; outline:none;">
+                <option value="dikerjakan" ${currentStatus === 'dikerjakan' ? 'selected' : ''}>SEDANG DIKERJAKAN</option>
+                <option value="nunggu_part" ${currentStatus === 'nunggu_part' ? 'selected' : ''}>MENUNGGU PART</option>
+              </select>
+            </div>
+            <div class="form-group"><label style="font-weight:700; text-transform:uppercase;">Kerusakan Aktual</label>
+              <textarea id="prog_kerusakan" rows="4" style="width:100%; padding:10px 14px; border:2px solid #000; border-radius:0; text-transform:uppercase; outline:none; resize:vertical;">${currentKerusakan || ''}</textarea>
+            </div>
+          </div>
+          <div class="modal-footer" style="border-top:2px solid #000; border-radius:0;">
+            <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('progressModal')">BATAL</button>
+            <button class="btn btn-primary btn-nascar" style="background:#2563eb; color:#fff;" id="submitProgress" onclick="submitProgress(${woId})">SIMPAN PROGRES</button>
+          </div>
+        </div>`;
+        document.body.appendChild(modal);
+      }
+
+      async function submitProgress(woId) {
+        const btn = document.getElementById('submitProgress');
+        btn.disabled = true; btn.textContent = 'PROSES...';
+
+        const status = document.getElementById('prog_status').value;
+        const data = {
+          status_wo: status,
+          kerusakan_aktual: document.getElementById('prog_kerusakan').value.trim().toUpperCase(),
+        };
+
+        const res = await API.updateProgress(woId, data);
+        btn.disabled = false; btn.textContent = 'SIMPAN PROGRES';
+
+        if (res && res.ok) {
+          Toast.success('PROGRES BERHASIL DIUPDATE');
+          Utils.closeModal('progressModal');
+          loadWorkOrders(currentPage);
+        } else {
+          const msg = res?.data?.message || 'GAGAL UPDATE PROGRES.';
+          document.getElementById('progressError').textContent = msg;
+          document.getElementById('progressError').style.display = 'block';
+        }
+      }
+
+      // ── REQUEST SPAREPART (SOP BARU) ──
+      // allPartsCache: daftar semua sparepart untuk live search filter
+      let allPartsCache = [];
+
+      async function showRequestPartModal(woId) {
+        // Tampilkan modal lebih dulu, kemudian load sparepart di background
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay'; modal.id = 'requestPartModal';
+        modal.innerHTML = `
+        <div class="modal" style="max-width:460px; border-radius:0; border:4px solid #000;">
+          <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
+            <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">REQUEST SPAREPART &mdash; WO #${woId}</div>
+            <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('requestPartModal')">X</button>
+          </div>
+          <div class="modal-body" style="background:#fff;">
+            <div id="reqPartError" class="alert alert-error" style="display:none; border-radius:0; border:2px solid #dc2626; font-weight:700;"></div>
+            <div style="background:#fef9c3; border:2px solid #d97706; padding:10px 14px; font-size:0.8rem; font-weight:700; text-transform:uppercase; color:#92400e; margin-bottom:16px;">
+              PERHATIAN: REQUEST INI BELUM MEMOTONG STOK. GUDANG AKAN MEMPROSES DAN MENG-ACC PERMINTAAN INI.
+            </div>
+            <div class="form-group">
+              <label style="font-weight:700; text-transform:uppercase; display:block; margin-bottom:6px;">CARI SPAREPART</label>
+              <input type="text" id="reqPartSearch"
+                style="width:100%; padding:10px 14px; border:2px solid #000; border-radius:0; font-family:var(--font); font-weight:700; text-transform:uppercase; outline:none; margin-bottom:8px;"
+                placeholder="KETIK NAMA PART..."
+                oninput="filterPartOptions()" />
+              <select id="reqPartSelect"
+                style="width:100%; padding:10px 14px; border:2px solid #000; border-radius:0; font-weight:700; text-transform:uppercase; outline:none;">
+                <option value="">MEMUAT DAFTAR SPAREPART...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label style="font-weight:700; text-transform:uppercase;">JUMLAH YANG DIBUTUHKAN (QTY) *</label>
+              <div class="input-wrapper">
+                <input type="number" id="reqPartQty"
+                  style="border-radius:0; border:2px solid #000;"
+                  min="1" placeholder="Contoh: 2" />
               </div>
             </div>
           </div>
+          <div class="modal-footer" style="border-top:2px solid #000; border-radius:0;">
+            <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('requestPartModal')">BATAL</button>
+            <button class="btn btn-danger btn-nascar" style="background:#111; color:#fff;" id="submitRequestPart" onclick="submitRequestPart(${woId})">AJUKAN REQUEST</button>
+          </div>
+        </div>`;
+        document.body.appendChild(modal);
 
-          <!-- Grand Total -->
-          <div style="border:4px solid #000; padding:16px; background:#facc15; margin-bottom:16px;">
-            <div class="total-row grand" style="font-weight:900; text-transform:uppercase;">
-              <span class="total-label" style="color:#000; font-size:1rem;">GRAND TOTAL</span>
-              <span class="total-value" style="color:#000; font-size:1.6rem; font-weight:900;">${Utils.formatCurrency(grandTotal)}</span>
+        // Load sparepart ke cache dan isi select
+        const partRes = await API.getSpareparts({ per_page: 200 });
+        allPartsCache = (partRes?.ok ? (partRes.data.data?.data || partRes.data.data || []) : []);
+        renderPartOptions(allPartsCache);
+      }
+
+      function renderPartOptions(parts) {
+        const sel = document.getElementById('reqPartSelect');
+        if (!sel) return;
+        if (!parts.length) {
+          sel.innerHTML = '<option value="">TIDAK ADA PART TERSEDIA</option>';
+          return;
+        }
+        sel.innerHTML = '<option value="">-- PILIH SPAREPART --</option>' +
+          parts.map(p => {
+            const critLabel = parseInt(p.stok_tersedia) <= parseInt(p.batas_minimum || 0)
+              ? ' [KRITIS]' : '';
+            return `<option value="${p.id_part}">[STOK: ${p.stok_tersedia}${critLabel}] ${Utils.escapeHtml(p.nama_part).toUpperCase()}</option>`;
+          }).join('');
+      }
+
+      function filterPartOptions() {
+        const keyword = document.getElementById('reqPartSearch')?.value.trim().toUpperCase() || '';
+        if (!keyword) {
+          renderPartOptions(allPartsCache);
+          return;
+        }
+        const filtered = allPartsCache.filter(p =>
+          p.nama_part.toUpperCase().includes(keyword)
+        );
+        renderPartOptions(filtered);
+      }
+
+      async function submitRequestPart(woId) {
+        const btn = document.getElementById('submitRequestPart');
+        const errDiv = document.getElementById('reqPartError');
+        btn.disabled = true; btn.textContent = 'PROSES...';
+        errDiv.style.display = 'none';
+
+        const partId = parseInt(document.getElementById('reqPartSelect').value);
+        const qty = parseInt(document.getElementById('reqPartQty').value);
+
+        if (!partId) {
+          errDiv.textContent = 'PILIH SPAREPART TERLEBIH DAHULU.';
+          errDiv.style.display = 'block';
+          btn.disabled = false; btn.textContent = 'AJUKAN REQUEST';
+          return;
+        }
+        if (!qty || qty < 1) {
+          errDiv.textContent = 'JUMLAH QTY MINIMAL 1.';
+          errDiv.style.display = 'block';
+          btn.disabled = false; btn.textContent = 'AJUKAN REQUEST';
+          return;
+        }
+
+        const res = await API.requestPart(woId, { id_part: partId, qty_pakai: qty });
+        btn.disabled = false; btn.textContent = 'AJUKAN REQUEST';
+
+        if (res && res.ok) {
+          Toast.success('REQUEST BERHASIL DIAJUKAN. MENUNGGU ACC DARI DEPARTEMEN GUDANG.');
+          Utils.closeModal('requestPartModal');
+          loadWorkOrders(currentPage);
+        } else {
+          errDiv.textContent = res?.data?.message || 'GAGAL MENGAJUKAN REQUEST.';
+          errDiv.style.display = 'block';
+        }
+      }
+
+      // ── TAHAP 2: Estimasi Mekanik ──
+      async function showEstimasiModal(woId, currentEstimasi) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay'; modal.id = 'estimasiModal';
+        modal.innerHTML = `
+        <div class="modal" style="max-width:420px; border-radius:0; border:4px solid #000;">
+          <div class="modal-header" style="background:#7c3aed; color:#fff; border-radius:0;">
+            <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">AJUKAN ESTIMASI BIAYA &mdash; WO #${woId}</div>
+            <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('estimasiModal')">X</button>
+          </div>
+          <div class="modal-body" style="background:#fff;">
+            <div id="estimasiError" class="alert alert-error" style="display:none; border-radius:0; border:2px solid #dc2626; font-weight:700;"></div>
+            <div style="border-left:4px solid #7c3aed; padding:8px 12px; margin-bottom:16px; background:#f5f3ff;">
+              <div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:#555;">ESTIMASI SAAT INI</div>
+              <div style="font-size:1.2rem; font-weight:900; color:#000;">${Utils.formatCurrency(currentEstimasi)}</div>
+            </div>
+            <div class="form-group">
+              <label style="font-weight:800; text-transform:uppercase;">ESTIMASI TOTAL BIAYA JASA (RP) *</label>
+              <div class="input-wrapper">
+                <input type="number" id="estimasi_biaya" style="border-radius:0; border:2px solid #000; font-size:1.1rem; font-weight:800;" min="0" value="${currentEstimasi || ''}" placeholder="Contoh: 250000" />
+              </div>
             </div>
           </div>
-
-          <!-- Metode Pembayaran -->
-          <div class="form-group">
-            <label style="font-weight:800; text-transform:uppercase; display:block; margin-bottom:8px;">METODE PEMBAYARAN *</label>
-            <select id="payment_metode" style="width:100%; padding:12px 14px; border:3px solid #000; border-radius:0; font-size:1rem; font-weight:800; text-transform:uppercase; outline:none; background:#fff; cursor:pointer; appearance:none;">
-              <option value="">-- PILIH METODE --</option>
-              <option value="tunai">TUNAI</option>
-              <option value="transfer_bank">TRANSFER BANK</option>
-              <option value="qris">QRIS</option>
-            </select>
+          <div class="modal-footer" style="border-top:2px solid #000; border-radius:0;">
+            <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('estimasiModal')">BATAL</button>
+            <button class="btn btn-primary btn-nascar" style="background:#7c3aed; color:#fff;" id="submitEstimasi" onclick="submitEstimasi(${woId})">AJUKAN ESTIMASI</button>
           </div>
+        </div>`;
+        document.body.appendChild(modal);
+      }
 
-          <!-- Info Konfirmasi -->
-          <div style="background:#fef3c7; border:2px solid #d97706; padding:10px 14px; font-size:0.8rem; font-weight:700; text-transform:uppercase; color:#92400e;">
-            PERHATIAN: SETELAH DIKONFIRMASI, STATUS WO AKAN OTOMATIS BERUBAH MENJADI SELESAI DAN TIDAK DAPAT DIUBAH KEMBALI.
+      async function submitEstimasi(woId) {
+        const btn = document.getElementById('submitEstimasi');
+        btn.disabled = true; btn.textContent = 'PROSES...';
+        const errDiv = document.getElementById('estimasiError');
+
+        const biaya = parseFloat(document.getElementById('estimasi_biaya').value);
+        if (isNaN(biaya) || biaya < 0) {
+          errDiv.textContent = 'ESTIMASI BIAYA WAJIB DIISI DAN TIDAK BOLEH NEGATIF.';
+          errDiv.style.display = 'block';
+          btn.disabled = false; btn.textContent = 'AJUKAN ESTIMASI';
+          return;
+        }
+
+        const res = await API.ajukanEstimasi(woId, { estimasi_biaya_jasa: biaya });
+        btn.disabled = false; btn.textContent = 'AJUKAN ESTIMASI';
+
+        if (res && res.ok) {
+          Toast.success('ESTIMASI BERHASIL DIAJUKAN. MENUNGGU AUDIT CA.');
+          Utils.closeModal('estimasiModal');
+          loadWorkOrders(currentPage);
+        } else {
+          errDiv.textContent = res?.data?.message || 'GAGAL MENGAJUKAN ESTIMASI.';
+          errDiv.style.display = 'block';
+        }
+      }
+
+      // ── TAHAP 4: Audit CA ──
+      async function showAuditModal(woId, currentEstimasi) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay'; modal.id = 'auditModal';
+        modal.innerHTML = `
+        <div class="modal" style="max-width:500px; border-radius:0; border:4px solid #000;">
+          <div class="modal-header" style="background:#d97706; color:#000; border-radius:0;">
+            <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">AUDIT CA &mdash; WO #${woId}</div>
+            <button class="modal-close" style="color:#000;" onclick="Utils.closeModal('auditModal')">X</button>
           </div>
-        </div>
-        <div class="modal-footer" style="border-top:2px solid #000; border-radius:0;">
-          <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('paymentModal')">BATAL</button>
-          <button class="btn btn-success btn-nascar" style="background:#16a34a; color:#fff; font-size:1rem; padding:12px 24px;" id="submitPayment" onclick="submitPayment(${woId})">KONFIRMASI LUNAS</button>
-        </div>
-      </div>`;
-    document.body.appendChild(modal);
-  }
+          <div class="modal-body" style="background:#fff;">
+            <div id="auditError" class="alert alert-error" style="display:none; border-radius:0; border:2px solid #dc2626; font-weight:700;"></div>
 
-  async function submitPayment(woId) {
-    const btn    = document.getElementById('submitPayment');
-    btn.disabled = true; btn.textContent = 'PROSES...';
-    const errDiv = document.getElementById('paymentError');
+            <div style="background:#fefce8; border:2px solid #d97706; padding:12px; margin-bottom:16px;">
+              <div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:#555;">ESTIMASI DARI MEKANIK</div>
+              <div style="font-size:1.6rem; font-weight:900; color:#000;">${Utils.formatCurrency(currentEstimasi)}</div>
+            </div>
 
-    const metode = document.getElementById('payment_metode').value;
-    if (!metode) {
-      errDiv.textContent = 'PILIH METODE PEMBAYARAN TERLEBIH DAHULU.';
-      errDiv.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'KONFIRMASI LUNAS';
-      return;
-    }
+            <div class="form-group">
+              <label style="font-weight:800; text-transform:uppercase; display:block; margin-bottom:8px;">KEPUTUSAN AUDIT *</label>
+              <div style="display:flex; gap:8px;">
+                <button type="button" id="btnApprove" onclick="setAuditDecision('approved')"
+                  style="flex:1; padding:14px; border:3px solid #000; background:#fff; color:#16a34a; font-weight:900; text-transform:uppercase; font-size:0.9rem; cursor:pointer; letter-spacing:0.05em;">
+                  SETUJUI
+                </button>
+                <button type="button" id="btnReject" onclick="setAuditDecision('rejected')"
+                  style="flex:1; padding:14px; border:3px solid #000; background:#fff; color:#dc2626; font-weight:900; text-transform:uppercase; font-size:0.9rem; cursor:pointer; letter-spacing:0.05em;">
+                  TOLAK
+                </button>
+              </div>
+              <input type="hidden" id="audit_keputusan" value="" />
+            </div>
 
-    const res = await API.processPayment(woId, { metode_pembayaran: metode });
-    btn.disabled = false; btn.textContent = 'KONFIRMASI LUNAS';
+            <div id="approveFields" style="display:none;">
+              <div class="form-group">
+                <label style="font-weight:800; text-transform:uppercase;">HARGA JASA FINAL (RP)</label>
+                <div style="font-size:0.75rem; font-weight:600; color:#555; text-transform:uppercase; margin-bottom:6px;">KOSONGKAN UNTUK PAKAI ESTIMASI MEKANIK</div>
+                <div class="input-wrapper">
+                  <input type="number" id="audit_harga_final" style="border-radius:0; border:2px solid #000; font-size:1.1rem; font-weight:800;" min="0" placeholder="${currentEstimasi}" />
+                </div>
+              </div>
+            </div>
 
-    if (res && res.ok) {
-      Toast.success('PEMBAYARAN BERHASIL. STATUS: LUNAS.');
-      Utils.closeModal('paymentModal');
-      loadWorkOrders(currentPage);
-    } else {
-      errDiv.textContent = res?.data?.message || 'GAGAL MEMPROSES PEMBAYARAN.';
-      errDiv.style.display = 'block';
-    }
-  }
+            <div id="rejectFields" style="display:none;">
+              <div class="form-group">
+                <label style="font-weight:800; text-transform:uppercase;">CATATAN PENOLAKAN *</label>
+                <textarea id="audit_catatan" rows="3" style="width:100%; padding:10px 14px; border:2px solid #000; border-radius:0; font-family:var(--font); resize:vertical; outline:none; font-weight:700; text-transform:uppercase;" placeholder="ALASAN PENOLAKAN ESTIMASI..."></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer" style="border-top:2px solid #000; border-radius:0;">
+            <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('auditModal')">BATAL</button>
+            <button class="btn btn-primary btn-nascar" style="background:#d97706; color:#000;" id="submitAudit" onclick="submitAudit(${woId})">PROSES AUDIT</button>
+          </div>
+        </div>`;
+        document.body.appendChild(modal);
+      }
 
-  // ── Kebab Menu: toggle buka/tutup ──
-  function toggleKebab(btn) {
-    const menu = btn.nextElementSibling;
-    const isOpen = menu.classList.contains('open');
-    closeAllKebab();
-    if (!isOpen) menu.classList.add('open');
-  }
+      function setAuditDecision(decision) {
+        document.getElementById('audit_keputusan').value = decision;
+        const isApprove = decision === 'approved';
+        document.getElementById('approveFields').style.display = isApprove ? 'block' : 'none';
+        document.getElementById('rejectFields').style.display = isApprove ? 'none' : 'block';
+        const btnA = document.getElementById('btnApprove');
+        const btnR = document.getElementById('btnReject');
+        btnA.style.background = isApprove ? '#16a34a' : '#fff';
+        btnA.style.color = isApprove ? '#fff' : '#16a34a';
+        btnR.style.background = isApprove ? '#fff' : '#dc2626';
+        btnR.style.color = isApprove ? '#dc2626' : '#fff';
+      }
 
-  function closeAllKebab() {
-    document.querySelectorAll('.kebab-menu.open').forEach(m => m.classList.remove('open'));
-  }
+      async function submitAudit(woId) {
+        const btn = document.getElementById('submitAudit');
+        btn.disabled = true; btn.textContent = 'PROSES...';
+        const errDiv = document.getElementById('auditError');
 
-  // Tutup semua dropdown saat klik di luar tabel
-  document.addEventListener('click', function(e) {
-    if (!e.target.closest('.kebab-wrapper')) closeAllKebab();
-  });
+        const keputusan = document.getElementById('audit_keputusan').value;
+        if (!keputusan) {
+          errDiv.textContent = 'PILIH KEPUTUSAN AUDIT TERLEBIH DAHULU.';
+          errDiv.style.display = 'block';
+          btn.disabled = false; btn.textContent = 'PROSES AUDIT';
+          return;
+        }
 
-  // Initial load
-  loadWorkOrders();
-</script>
-</body>
-</html>
+        const payload = { status_audit_ca: keputusan };
+
+        if (keputusan === 'approved') {
+          const hargaFinal = document.getElementById('audit_harga_final').value;
+          if (hargaFinal) payload.total_biaya_jasa = parseFloat(hargaFinal);
+        } else {
+          const catatan = document.getElementById('audit_catatan').value.trim();
+          if (!catatan) {
+            errDiv.textContent = 'CATATAN PENOLAKAN WAJIB DIISI.';
+            errDiv.style.display = 'block';
+            btn.disabled = false; btn.textContent = 'PROSES AUDIT';
+            return;
+          }
+          payload.catatan_ca = catatan.toUpperCase();
+        }
+
+        const res = await API.auditCA(woId, payload);
+        btn.disabled = false; btn.textContent = 'PROSES AUDIT';
+
+        if (res && res.ok) {
+          const msg = keputusan === 'approved'
+            ? 'AUDIT DISETUJUI. WO MASUK ANTRIAN PEMBAYARAN.'
+            : 'AUDIT DITOLAK. WO DIKEMBALIKAN KE MEKANIK.';
+          Toast.success(msg);
+          Utils.closeModal('auditModal');
+          loadWorkOrders(currentPage);
+        } else {
+          errDiv.textContent = res?.data?.message || 'GAGAL MEMPROSES AUDIT.';
+          errDiv.style.display = 'block';
+        }
+      }
+
+      // ── Payment Modal (Tahap 5: Kasir) ──
+      async function showPaymentModal(woId) {
+        const billRes = await API.getWOBill(woId);
+        if (!billRes || !billRes.ok) { Toast.error('GAGAL MEMUAT TAGIHAN'); return; }
+        const billData = billRes.data.data;
+        const wo = billData.work_order || billData;
+        const summary = billData.summary || {
+          total_biaya_jasa: wo.total_biaya_jasa || 0,
+          total_biaya_parts: wo.total_biaya_parts || 0,
+          grand_total: wo.grand_total || 0,
+        };
+
+        // Biaya jasa sudah di-lock oleh CA saat audit — tidak bisa diubah kasir
+        const jasaLocked = parseFloat(summary.total_biaya_jasa) || 0;
+        const partsTotal = parseFloat(summary.total_biaya_parts) || 0;
+        const grandTotal = jasaLocked + partsTotal;
+
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay'; modal.id = 'paymentModal';
+        modal.innerHTML = `
+        <div class="modal" style="max-width:480px; border-radius:0; border:4px solid #000;">
+          <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
+            <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">PEMBAYARAN KASIR &mdash; WO #${woId}</div>
+            <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('paymentModal')">X</button>
+          </div>
+          <div class="modal-body" style="background:#fff;">
+            <div id="paymentError" class="alert alert-error" style="display:none; border-radius:0; border:2px solid #dc2626; font-weight:700;"></div>
+
+            <!-- Ringkasan Biaya Bersih -->
+            <div style="border:2px solid #000; background:#f3f4f6; margin-bottom:16px;">
+              <div style="background:#000; color:#fff; padding:8px 14px; font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;">RINCIAN TAGIHAN</div>
+              <div style="padding:14px;">
+                <div class="total-row" style="font-weight:700; text-transform:uppercase; padding:6px 0; border-bottom:1px solid #d1d5db;">
+                  <span class="total-label" style="color:#555;">BIAYA JASA (DITETAPKAN CA)</span>
+                  <span class="total-value" style="font-weight:900; color:#000;">${Utils.formatCurrency(jasaLocked)}</span>
+                </div>
+                <div class="total-row" style="font-weight:700; text-transform:uppercase; padding:6px 0;">
+                  <span class="total-label" style="color:#555;">TOTAL SPAREPART</span>
+                  <span class="total-value" style="font-weight:900; color:#000;">${Utils.formatCurrency(partsTotal)}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Grand Total -->
+            <div style="border:4px solid #000; padding:16px; background:#facc15; margin-bottom:16px;">
+              <div class="total-row grand" style="font-weight:900; text-transform:uppercase;">
+                <span class="total-label" style="color:#000; font-size:1rem;">GRAND TOTAL</span>
+                <span class="total-value" style="color:#000; font-size:1.6rem; font-weight:900;">${Utils.formatCurrency(grandTotal)}</span>
+              </div>
+            </div>
+
+            <!-- Metode Pembayaran -->
+            <div class="form-group">
+              <label style="font-weight:800; text-transform:uppercase; display:block; margin-bottom:8px;">METODE PEMBAYARAN *</label>
+              <select id="payment_metode" style="width:100%; padding:12px 14px; border:3px solid #000; border-radius:0; font-size:1rem; font-weight:800; text-transform:uppercase; outline:none; background:#fff; cursor:pointer; appearance:none;">
+                <option value="">-- PILIH METODE --</option>
+                <option value="tunai">TUNAI</option>
+                <option value="transfer_bank">TRANSFER BANK</option>
+                <option value="qris">QRIS</option>
+              </select>
+            </div>
+
+            <!-- Info Konfirmasi -->
+            <div style="background:#fef3c7; border:2px solid #d97706; padding:10px 14px; font-size:0.8rem; font-weight:700; text-transform:uppercase; color:#92400e;">
+              PERHATIAN: SETELAH DIKONFIRMASI, STATUS WO AKAN OTOMATIS BERUBAH MENJADI SELESAI DAN TIDAK DAPAT DIUBAH KEMBALI.
+            </div>
+          </div>
+          <div class="modal-footer" style="border-top:2px solid #000; border-radius:0;">
+            <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('paymentModal')">BATAL</button>
+            <button class="btn btn-success btn-nascar" style="background:#16a34a; color:#fff; font-size:1rem; padding:12px 24px;" id="submitPayment" onclick="submitPayment(${woId})">KONFIRMASI LUNAS</button>
+          </div>
+        </div>`;
+        document.body.appendChild(modal);
+      }
+
+      async function submitPayment(woId) {
+        const btn = document.getElementById('submitPayment');
+        btn.disabled = true; btn.textContent = 'PROSES...';
+        const errDiv = document.getElementById('paymentError');
+
+        const metode = document.getElementById('payment_metode').value;
+        if (!metode) {
+          errDiv.textContent = 'PILIH METODE PEMBAYARAN TERLEBIH DAHULU.';
+          errDiv.style.display = 'block';
+          btn.disabled = false; btn.textContent = 'KONFIRMASI LUNAS';
+          return;
+        }
+
+        const res = await API.processPayment(woId, { metode_pembayaran: metode });
+        btn.disabled = false; btn.textContent = 'KONFIRMASI LUNAS';
+
+        if (res && res.ok) {
+          Toast.success('PEMBAYARAN BERHASIL. STATUS: LUNAS.');
+          Utils.closeModal('paymentModal');
+          loadWorkOrders(currentPage);
+        } else {
+          errDiv.textContent = res?.data?.message || 'GAGAL MEMPROSES PEMBAYARAN.';
+          errDiv.style.display = 'block';
+        }
+      }
+
+      // ── Cetak Nota Work Order ──
+      async function printWorkOrder(id) {
+        Toast.info?.('Memuat data nota...');
+        const res = await API.getWorkOrder(id);
+        if (!res || !res.ok) { Toast.error('GAGAL MEMUAT DATA UNTUK CETAK'); return; }
+        const wo = res.data.data;
+
+        const fmt = Utils.formatCurrency;
+        const esc = Utils.escapeHtml;
+
+        // Isi header
+        document.getElementById('pn-id').textContent      = wo.id_wo;
+        document.getElementById('pn-status').textContent  = wo.status_wo.toUpperCase().replace(/_/g, ' ');
+        document.getElementById('pn-tanggal').textContent = `Tanggal: ${Utils.formatDate(wo.tanggal_masuk)}`;
+
+        // Isi info kendaraan & customer
+        document.getElementById('pn-plat').textContent      = wo.plat_nomor || '-';
+        document.getElementById('pn-customer').textContent  = wo.kendaraan?.customer?.nama_customer || '-';
+        document.getElementById('pn-kendaraan').textContent = `${wo.kendaraan?.merk_mobil || ''} ${wo.kendaraan?.model_mobil || ''} (${wo.kendaraan?.tahun_produksi || ''})`;
+        document.getElementById('pn-telp').textContent      = wo.kendaraan?.customer?.no_telepon || '-';
+        document.getElementById('pn-keluhan').textContent   = wo.keluhan_awal || '-';
+        document.getElementById('pn-kerusakan').textContent = wo.kerusakan_aktual || '-';
+        document.getElementById('pn-mekanik').textContent   = wo.mekanik?.nama_lengkap || '-';
+        document.getElementById('pn-ca').textContent        = wo.user_c_a?.nama_lengkap || '-';
+
+        // Isi nama tanda tangan
+        document.getElementById('pn-sign-customer').textContent = `( ${esc(wo.kendaraan?.customer?.nama_customer || '...')} )`;
+        document.getElementById('pn-sign-ca').textContent       = `( ${esc(wo.user_c_a?.nama_lengkap || '...')} )`;
+
+        // Isi tabel sparepart
+        const parts = wo.detail_parts || [];
+        document.getElementById('pn-parts').innerHTML = parts.length
+          ? parts.map(d => `
+              <tr>
+                <td>${esc(d.sparepart?.nama_part || '-')}</td>
+                <td style="text-align:center;">${d.qty_pakai}</td>
+                <td style="text-align:right;">${fmt(d.harga_satuan_snapshot)}</td>
+                <td style="text-align:right; font-weight:700;">${fmt(d.subtotal_harga)}</td>
+              </tr>`).join('')
+          : `<tr><td colspan="4" style="text-align:center; color:#666;">Tidak ada pemakaian sparepart</td></tr>`;
+
+        // Isi ringkasan biaya
+        document.getElementById('pn-jasa').textContent        = fmt(wo.total_biaya_jasa);
+        document.getElementById('pn-parts-total').textContent = fmt(wo.total_biaya_parts);
+        document.getElementById('pn-grand').textContent       = fmt(wo.grand_total);
+
+        // Cetak!
+        window.print();
+      }
+
+      // ── Kebab Menu: toggle buka/tutup ──
+      function toggleKebab(btn) {
+        const menu = btn.nextElementSibling;
+        const isOpen = menu.classList.contains('open');
+        closeAllKebab();
+        if (!isOpen) menu.classList.add('open');
+      }
+
+      function closeAllKebab() {
+        document.querySelectorAll('.kebab-menu.open').forEach(m => m.classList.remove('open'));
+      }
+
+      // Tutup semua dropdown saat klik di luar tabel
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('.kebab-wrapper')) closeAllKebab();
+      });
+
+      // Initial load
+      loadWorkOrders();
+    </script>
+  </body>
+
+  </html>

@@ -28,6 +28,7 @@
 
 html {
   scroll-behavior: auto;
+  overflow-x: hidden; /* Cegah scroll di level dokumen */
 }
 
 body {
@@ -36,6 +37,7 @@ body {
   color: var(--black);
   line-height: 1.5;
   min-height: 100vh;
+  overflow-x: hidden; /* Cegah horizontal scroll di level paling luar */
 }
 
 /* ── LOGIN PAGE ── */
@@ -417,6 +419,8 @@ body {
 .app-layout {
   display: flex;
   min-height: 100vh;
+  max-width: 100%; /* Cegah container flex meluber */
+  overflow-x: hidden;
 }
 
 /* ── SIDEBAR ── */
@@ -592,12 +596,14 @@ body {
 .main-content {
   margin-left: 240px;
   flex: 1;
+  min-width: 0; /* CRITICAL: Mencegah flexbox memaksa lebar membesar mengikuti tabel */
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  /* Tugas 3: Page fade-in setiap pindah halaman */
+  /* Batasi lebar agar tidak melebihi sisa ruang setelah sidebar */
+  max-width: calc(100% - 240px);
+  overflow-x: hidden;
   animation: fadePageIn 0.3s ease-out both;
-  /* Tugas 2: Smooth saat sidebar collapse */
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -653,6 +659,8 @@ body {
 .page-body {
   padding: 24px 28px;
   flex: 1;
+  min-width: 0; /* CRITICAL: Mencegah page-body ikut melar */
+  overflow-x: hidden; /* Padding tidak menyebabkan scroll keluar */
 }
 
 /* ── STATS CARDS ── */
@@ -756,6 +764,8 @@ body {
 
 .table-wrapper {
   overflow-x: auto;
+  width: 100%; /* Pastikan wrapper tidak meluber dari parent */
+  max-width: 100%;
 }
 
 table {
@@ -1341,7 +1351,10 @@ tr:hover td {
   /* ── Layout utama ── */
   .main-content {
     margin-left: 0;
-    width: 100vw;
+    /* Gunakan max-width bukan width:100vw — 100vw menyebabkan scroll
+       karena menghitung lebar termasuk scrollbar browser */
+    width: 100%;
+    max-width: 100%;
     overflow-x: hidden;
   }
 
@@ -1433,6 +1446,7 @@ tr:hover td {
 /* .main-content geser saat sidebar mini */
 .main-content.mini-offset {
   margin-left: 70px;
+  max-width: calc(100% - 70px);
 }
 
 /* ── TUGAS 4: .btn-nascar hover (NASCAR reaktif) ── */
