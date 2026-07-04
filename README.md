@@ -1,6 +1,6 @@
 ---
 
-🛠️ GR-Connect: Sistem Manajemen Bengkel Utama
+## 🛠️ GR-Connect: Sistem Manajemen Bengkel Utama
 
 GR-Connect adalah aplikasi web berbasis Client-Server RESTful API yang dirancang untuk mendigitalkan dan mengoptimalkan alur kerja operasional bengkel otomotif. Sistem ini mencakup pendaftaran Work Order, estimasi mekanik, sistem audit oleh Customer Advisor (CA), manajemen inventaris gudang, hingga cetak nota fisik dengan otorisasi 3 pihak.
 
