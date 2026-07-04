@@ -1,110 +1,117 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sparepart — GR-Connect</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
+
 <body>
-<div class="app-layout">
-  <div id="sidebar-container"></div>
-  <div class="main-content">
-    <div class="page-header">
-      <div class="page-header-inner">
-        <div>
-          <h1 class="page-title">Sparepart & Stok</h1>
-          <p class="page-subtitle">Manajemen inventaris sparepart bengkel</p>
-        </div>
-        <div class="page-actions" id="page-actions"></div>
-      </div>
-    </div>
-    <div class="page-body">
-      <div class="table-card">
-        <div class="table-card-header">
-          <div class="table-card-title">Daftar Sparepart</div>
-          <div class="table-filters">
-            <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--text-secondary);cursor:pointer;">
-              <input type="checkbox" id="filterLowStock" onchange="loadSpareparts()" style="accent-color:var(--danger);" />
-              STOK KRITIS SAJA
-            </label>
-            <input type="text" class="filter-input" id="filterSearch" placeholder="CARI NAMA PART..." oninput="debounceLoad()" style="width:200px;" />
+  <div class="app-layout">
+    <div id="sidebar-container"></div>
+    <div class="main-content">
+      <div class="page-header">
+        <div class="page-header-inner">
+          <div>
+            <h1 class="page-title">Sparepart & Stok</h1>
+            <p class="page-subtitle">Manajemen inventaris sparepart bengkel</p>
           </div>
+          <div class="page-actions" id="page-actions"></div>
         </div>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nama Sparepart</th>
-                <th>Stok Tersedia</th>
-                <th>Batas Minimum</th>
-                <th>Harga Satuan</th>
-                <th>Status Stok</th>
-                <th id="aksiHeader">Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="partTable"></tbody>
-          </table>
-        </div>
-        <div style="padding:16px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-          <span id="paginationInfo" style="font-size:0.8rem;color:var(--text-muted);"></span>
-          <div style="display:flex;gap:8px;" id="paginationBtns"></div>
+      </div>
+      <div class="page-body">
+        <div class="table-card">
+          <div class="table-card-header">
+            <div class="table-card-title">Daftar Sparepart</div>
+            <div class="table-filters">
+              <label
+                style="display:flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--text-secondary);cursor:pointer;">
+                <input type="checkbox" id="filterLowStock" onchange="loadSpareparts()"
+                  style="accent-color:var(--danger);" />
+                <label for="filterLowStock" style="color: white; cursor: pointer;">STOK KRITIS SAJA</label>
+              </label>
+              <input type="text" class="filter-input" id="filterSearch" placeholder="CARI NAMA PART..."
+                oninput="debounceLoad()" style="width:200px;" />
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nama Sparepart</th>
+                  <th>Stok Tersedia</th>
+                  <th>Batas Minimum</th>
+                  <th>Harga Satuan</th>
+                  <th>Status Stok</th>
+                  <th id="aksiHeader">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="partTable"></tbody>
+            </table>
+          </div>
+          <div
+            style="padding:16px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+            <span id="paginationInfo" style="font-size:0.8rem;color:var(--text-muted);"></span>
+            <div style="display:flex;gap:8px;" id="paginationBtns"></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<div id="modal-container"></div>
+  <div id="modal-container"></div>
 
-<script src="js/config.js"></script>
-<script src="js/api.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/app.js"></script>
-<script>
-  document.getElementById('sidebar-container').innerHTML = renderSidebar('spareparts');
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.getElementById('sidebar-container').innerHTML = renderSidebar('spareparts');
 
-  const canManage = Auth.hasRole('manager', 'sparepart');
-  let currentPage = 1;
-  let debounceTimer;
+    const canManage = Auth.hasRole('manager', 'sparepart');
+    let currentPage = 1;
+    let debounceTimer;
 
-  if (canManage) {
-    document.getElementById('page-actions').innerHTML =
-      `<button class="btn btn-primary" style="border-radius:0; font-weight:800; text-transform:uppercase;" onclick="showAddPartModal()">TAMBAH SPAREPART</button>`;
-  }
-
-  async function loadSpareparts(page = 1) {
-    currentPage = page;
-    const tbody = document.getElementById('partTable');
-    Utils.showLoading(tbody);
-
-    const params = { page, per_page: 15 };
-    const search   = document.getElementById('filterSearch').value.trim();
-    const lowStock = document.getElementById('filterLowStock').checked;
-    if (search)   params.search    = search;
-    if (lowStock) params.low_stock = 1;
-
-    const res = await API.getSpareparts(params);
-
-    if (!res || !res.ok) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--danger);padding:20px;">Gagal memuat data.</td></tr>`;
-      return;
+    if (canManage) {
+      document.getElementById('page-actions').innerHTML =
+        `<button class="btn btn-primary" style="border-radius:0; font-weight:800; text-transform:uppercase;" onclick="showAddPartModal()">TAMBAH SPAREPART</button>`;
     }
 
-    const { data: parts, total, last_page, current_page, per_page } = res.data.data;
+    async function loadSpareparts(page = 1) {
+      currentPage = page;
+      const tbody = document.getElementById('partTable');
+      Utils.showLoading(tbody);
 
-    if (!parts || parts.length === 0) {
-      Utils.showEmpty(tbody, 'Tidak ada sparepart ditemukan');
-      return;
-    }
+      const params = { page, per_page: 15 };
+      const search = document.getElementById('filterSearch').value.trim();
+      const lowStock = document.getElementById('filterLowStock').checked;
+      if (search) params.search = search;
+      if (lowStock) params.low_stock = 1;
 
-    tbody.innerHTML = parts.map(p => {
-      const isLow = parseInt(p.stok_tersedia) <= parseInt(p.batas_minimum);
-      const stockClass = isLow ? 'color:var(--danger);font-weight:700;' : 'color:var(--success);font-weight:600;';
-      return `
+      const res = await API.getSpareparts(params);
+
+      if (!res || !res.ok) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--danger);padding:20px;">Gagal memuat data.</td></tr>`;
+        return;
+      }
+
+      const { data: parts, total, last_page, current_page, per_page } = res.data.data;
+
+      if (!parts || parts.length === 0) {
+        Utils.showEmpty(tbody, 'Tidak ada sparepart ditemukan');
+        return;
+      }
+
+      tbody.innerHTML = parts.map(p => {
+        const isLow = parseInt(p.stok_tersedia) <= parseInt(p.batas_minimum);
+        const stockClass = isLow ? 'color:var(--danger);font-weight:700;' : 'color:var(--success);font-weight:600;';
+        return `
         <tr>
           <td>${p.id_part}</td>
           <td class="td-main">${Utils.escapeHtml(p.nama_part)}</td>
@@ -132,43 +139,43 @@
           </td>
         </tr>
       `;
-    }).join('');
+      }).join('');
 
-    // Event Delegation
-    tbody.querySelectorAll('[data-action]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const action = btn.dataset.action;
-        const id     = parseInt(btn.dataset.id);
-        const nama   = btn.dataset.nama; // sudah di-escapeHtml, aman sebagai text
-        if (action === 'edit') {
-          showEditPartModal(id, nama, parseInt(btn.dataset.stok), parseInt(btn.dataset.batas), parseFloat(btn.dataset.harga));
-        } else if (action === 'restock') {
-          showRestockModal(id, nama, parseInt(btn.dataset.stok));
-        }
+      // Event Delegation
+      tbody.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const action = btn.dataset.action;
+          const id = parseInt(btn.dataset.id);
+          const nama = btn.dataset.nama; // sudah di-escapeHtml, aman sebagai text
+          if (action === 'edit') {
+            showEditPartModal(id, nama, parseInt(btn.dataset.stok), parseInt(btn.dataset.batas), parseFloat(btn.dataset.harga));
+          } else if (action === 'restock') {
+            showRestockModal(id, nama, parseInt(btn.dataset.stok));
+          }
+        });
       });
-    });
 
-    // Pagination
-    const from = (current_page - 1) * per_page + 1;
-    const to   = Math.min(current_page * per_page, total);
-    document.getElementById('paginationInfo').textContent = `Menampilkan ${from}–${to} dari ${total} sparepart`;
-    let pBtns = '';
-    if (current_page > 1) pBtns += `<button class="btn btn-secondary btn-sm" onclick="loadSpareparts(${current_page-1})">← Prev</button>`;
-    pBtns += `<span style="font-size:0.8rem;color:var(--text-muted);align-self:center;">Hal. ${current_page}/${last_page}</span>`;
-    if (current_page < last_page) pBtns += `<button class="btn btn-secondary btn-sm" onclick="loadSpareparts(${current_page+1})">Next →</button>`;
-    document.getElementById('paginationBtns').innerHTML = pBtns;
-  }
+      // Pagination
+      const from = (current_page - 1) * per_page + 1;
+      const to = Math.min(current_page * per_page, total);
+      document.getElementById('paginationInfo').textContent = `Menampilkan ${from}–${to} dari ${total} sparepart`;
+      let pBtns = '';
+      if (current_page > 1) pBtns += `<button class="btn btn-secondary btn-sm" onclick="loadSpareparts(${current_page - 1})">← Prev</button>`;
+      pBtns += `<span style="font-size:0.8rem;color:var(--text-muted);align-self:center;">Hal. ${current_page}/${last_page}</span>`;
+      if (current_page < last_page) pBtns += `<button class="btn btn-secondary btn-sm" onclick="loadSpareparts(${current_page + 1})">Next →</button>`;
+      document.getElementById('paginationBtns').innerHTML = pBtns;
+    }
 
-  function debounceLoad() {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(() => loadSpareparts(1), 400);
-  }
+    function debounceLoad() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => loadSpareparts(1), 400);
+    }
 
-  // ── Add Part Modal ──
-  function showAddPartModal() {
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay'; modal.id = 'addPartModal';
-    modal.innerHTML = `
+    // ── Add Part Modal ──
+    function showAddPartModal() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay'; modal.id = 'addPartModal';
+      modal.innerHTML = `
       <div class="modal" style="max-width:440px;">
         <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
           <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">TAMBAH SPAREPART BARU</div>
@@ -188,36 +195,36 @@
           <button class="btn btn-primary" id="submitAddPart" onclick="submitAddPart()">Simpan</button>
         </div>
       </div>`;
-    document.body.appendChild(modal);
-  }
-
-  async function submitAddPart() {
-    const btn = document.getElementById('submitAddPart');
-    btn.disabled = true; btn.textContent = 'Menyimpan...';
-    const data = {
-      nama_part:     document.getElementById('add_nama').value.trim(),
-      stok_tersedia: parseInt(document.getElementById('add_stok').value),
-      batas_minimum: parseInt(document.getElementById('add_batas').value),
-      harga_satuan:  parseFloat(document.getElementById('add_harga').value),
-    };
-    const res = await API.createSparepart(data);
-    btn.disabled = false; btn.textContent = 'Simpan';
-    if (res && res.ok) {
-      Toast.success('Sparepart berhasil ditambahkan!');
-      Utils.closeModal('addPartModal');
-      loadSpareparts(1);
-    } else {
-      const msg = res?.data?.errors ? Object.values(res.data.errors).flat().join(' | ') : (res?.data?.message || 'Gagal.');
-      document.getElementById('addPartError').textContent = msg;
-      document.getElementById('addPartError').style.display = 'block';
+      document.body.appendChild(modal);
     }
-  }
 
-  // ── Edit Part Modal ──
-  function showEditPartModal(id, nama, stok, batas, harga) {
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay'; modal.id = 'editPartModal';
-    modal.innerHTML = `
+    async function submitAddPart() {
+      const btn = document.getElementById('submitAddPart');
+      btn.disabled = true; btn.textContent = 'Menyimpan...';
+      const data = {
+        nama_part: document.getElementById('add_nama').value.trim(),
+        stok_tersedia: parseInt(document.getElementById('add_stok').value),
+        batas_minimum: parseInt(document.getElementById('add_batas').value),
+        harga_satuan: parseFloat(document.getElementById('add_harga').value),
+      };
+      const res = await API.createSparepart(data);
+      btn.disabled = false; btn.textContent = 'Simpan';
+      if (res && res.ok) {
+        Toast.success('Sparepart berhasil ditambahkan!');
+        Utils.closeModal('addPartModal');
+        loadSpareparts(1);
+      } else {
+        const msg = res?.data?.errors ? Object.values(res.data.errors).flat().join(' | ') : (res?.data?.message || 'Gagal.');
+        document.getElementById('addPartError').textContent = msg;
+        document.getElementById('addPartError').style.display = 'block';
+      }
+    }
+
+    // ── Edit Part Modal ──
+    function showEditPartModal(id, nama, stok, batas, harga) {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay'; modal.id = 'editPartModal';
+      modal.innerHTML = `
       <div class="modal" style="max-width:440px;">
         <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
           <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">EDIT SPAREPART</div>
@@ -236,34 +243,34 @@
           <button class="btn btn-primary" id="submitEditPart" onclick="submitEditPart(${id})">Update</button>
         </div>
       </div>`;
-    document.body.appendChild(modal);
-  }
-
-  async function submitEditPart(id) {
-    const btn = document.getElementById('submitEditPart');
-    btn.disabled = true; btn.textContent = 'Menyimpan...';
-    const data = {
-      nama_part:     document.getElementById('edit_nama').value.trim(),
-      batas_minimum: parseInt(document.getElementById('edit_batas').value),
-      harga_satuan:  parseFloat(document.getElementById('edit_harga').value),
-    };
-    const res = await API.updateSparepart(id, data);
-    btn.disabled = false; btn.textContent = 'Update';
-    if (res && res.ok) {
-      Toast.success('Sparepart berhasil diupdate!');
-      Utils.closeModal('editPartModal');
-      loadSpareparts(currentPage);
-    } else {
-      document.getElementById('editPartError').textContent = res?.data?.message || 'Gagal update.';
-      document.getElementById('editPartError').style.display = 'block';
+      document.body.appendChild(modal);
     }
-  }
 
-  // ── Restock Modal ──
-  function showRestockModal(id, nama, stokSaat) {
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay'; modal.id = 'restockModal';
-    modal.innerHTML = `
+    async function submitEditPart(id) {
+      const btn = document.getElementById('submitEditPart');
+      btn.disabled = true; btn.textContent = 'Menyimpan...';
+      const data = {
+        nama_part: document.getElementById('edit_nama').value.trim(),
+        batas_minimum: parseInt(document.getElementById('edit_batas').value),
+        harga_satuan: parseFloat(document.getElementById('edit_harga').value),
+      };
+      const res = await API.updateSparepart(id, data);
+      btn.disabled = false; btn.textContent = 'Update';
+      if (res && res.ok) {
+        Toast.success('Sparepart berhasil diupdate!');
+        Utils.closeModal('editPartModal');
+        loadSpareparts(currentPage);
+      } else {
+        document.getElementById('editPartError').textContent = res?.data?.message || 'Gagal update.';
+        document.getElementById('editPartError').style.display = 'block';
+      }
+    }
+
+    // ── Restock Modal ──
+    function showRestockModal(id, nama, stokSaat) {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay'; modal.id = 'restockModal';
+      modal.innerHTML = `
       <div class="modal" style="max-width:400px;">
         <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
           <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">RESTOCK: ${nama}</div>
@@ -279,32 +286,33 @@
           <button class="btn btn-success" style="border-radius:0; font-weight:800; text-transform:uppercase;" id="submitRestock" onclick="submitRestock(${id}, ${stokSaat})">TAMBAH STOK</button>
         </div>
       </div>`;
-    document.body.appendChild(modal);
-  }
+      document.body.appendChild(modal);
+    }
 
-  async function submitRestock(id, currentStok) {
-    const btn = document.getElementById('submitRestock');
-    btn.disabled = true; btn.textContent = 'MENYIMPAN...';
-    const qty = parseInt(document.getElementById('restock_qty').value);
-    if (!qty || qty < 1) {
-      document.getElementById('restockError').textContent = 'JUMLAH QTY MINIMAL 1.';
-      document.getElementById('restockError').style.display = 'block';
+    async function submitRestock(id, currentStok) {
+      const btn = document.getElementById('submitRestock');
+      btn.disabled = true; btn.textContent = 'MENYIMPAN...';
+      const qty = parseInt(document.getElementById('restock_qty').value);
+      if (!qty || qty < 1) {
+        document.getElementById('restockError').textContent = 'JUMLAH QTY MINIMAL 1.';
+        document.getElementById('restockError').style.display = 'block';
+        btn.disabled = false; btn.textContent = 'TAMBAH STOK';
+        return;
+      }
+      const res = await API.restockSparepart(id, { qty });
       btn.disabled = false; btn.textContent = 'TAMBAH STOK';
-      return;
+      if (res && res.ok) {
+        Toast.success(`STOK BERHASIL DITAMBAH +${qty}!`);
+        Utils.closeModal('restockModal');
+        loadSpareparts(currentPage);
+      } else {
+        document.getElementById('restockError').textContent = res?.data?.message || 'GAGAL RESTOCK.';
+        document.getElementById('restockError').style.display = 'block';
+      }
     }
-    const res = await API.restockSparepart(id, { qty });
-    btn.disabled = false; btn.textContent = 'TAMBAH STOK';
-    if (res && res.ok) {
-      Toast.success(`STOK BERHASIL DITAMBAH +${qty}!`);
-      Utils.closeModal('restockModal');
-      loadSpareparts(currentPage);
-    } else {
-      document.getElementById('restockError').textContent = res?.data?.message || 'GAGAL RESTOCK.';
-      document.getElementById('restockError').style.display = 'block';
-    }
-  }
 
-  loadSpareparts();
-</script>
+    loadSpareparts();
+  </script>
 </body>
+
 </html>
