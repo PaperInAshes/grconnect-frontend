@@ -1,13 +1,13 @@
 ---
 
-## 🛠️ GR-Connect: Sistem Manajemen Bengkel Utama
+##  GR-Connect: Sistem Manajemen Bengkel Utama
 
 GR-Connect adalah aplikasi web berbasis Client-Server RESTful API yang dirancang untuk mendigitalkan dan mengoptimalkan alur kerja operasional bengkel otomotif. Sistem ini mencakup pendaftaran Work Order, estimasi mekanik, sistem audit oleh Customer Advisor (CA), manajemen inventaris gudang, hingga cetak nota fisik dengan otorisasi 3 pihak.
 Proyek ini dikembangkan sebagai pemenuhan tugas mata kuliah Rekayasa Perangkat Lunak, Program Studi Teknik Informatika, UPN "Veteran" Yogyakarta.
 
 ---
 
-## 🚀 Live Demo & Akses UAT
+##  Live Demo & Akses UAT
 Aplikasi ini sudah di-deploy dan dapat diakses secara live melalui tautan berikut:
 **🔗 [GR-Connect Live Web / API](https://grconnect-api.kesug.com)**
 
@@ -23,7 +23,7 @@ Untuk keperluan *User Acceptance Testing* (UAT) dan pengujian alur bisnis, silak
 
 ---
 
-## ✨ Fitur Unggulan (Core Features)
+##  Fitur Unggulan (Core Features)
 
 1. **Role-Based Access Control (RBAC):** Isolasi data yang ketat. Mekanik hanya dapat melihat tugasnya sendiri, Kasir hanya fokus pada pembayaran, dan Gudang fokus pada inventaris.
 2. **Work Order Audit Flow:** Alur *approval* berlapis. Mekanik tidak dapat mengeksekusi perbaikan sebelum estimasi biaya & *sparepart* disetujui (Audit) oleh CA, meminimalisir manipulasi *budget*.
@@ -34,7 +34,7 @@ Untuk keperluan *User Acceptance Testing* (UAT) dan pengujian alur bisnis, silak
 
 ---
 
-## 💻 Arsitektur & Tech Stack
+##  Arsitektur & Tech Stack
 
 Proyek ini dipisahkan secara logis antara antarmuka pengguna (*Client*) dan pemrosesan data (*Server*).
 
@@ -51,7 +51,7 @@ Proyek ini dipisahkan secara logis antara antarmuka pengguna (*Client*) dan pemr
 
 ---
 
-## 📂 Struktur Direktori Repositori
+##  Struktur Direktori Repositori
 
 ```text
 GR-Connect-Project/
@@ -70,7 +70,7 @@ GR-Connect-Project/
 
 ---
 
-## 👨‍💻 Pengembang
+##  Pengembang
 
 **Filipus Satrio Dewaki Tyasing Suryo (Dewa)** Mahasiswa Teknik Informatika
 **Nabil Priyanka Pasuhuk (Nabil)** Mahasiswa Teknik Informatika
