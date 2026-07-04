@@ -1,98 +1,102 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Manajemen User — GR-Connect</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
+
 <body>
-<div class="app-layout">
-  <div id="sidebar-container"></div>
-  <div class="main-content">
-    <div class="page-header">
-      <div class="page-header-inner">
-        <div>
-          <h1 class="page-title">Manajemen User</h1>
-          <p class="page-subtitle">Kelola akun karyawan bengkel</p>
-        </div>
-          <button class="btn btn-primary" style="border-radius:0; font-weight:800; text-transform:uppercase;" onclick="showAddUserModal()">TAMBAH USER</button>
-        </div>
-      </div>
-    </div>
-    <div class="page-body">
-      <div class="table-card">
-        <div class="table-card-header">
-          <div class="table-card-title">Daftar Karyawan</div>
-          <div class="table-filters">
-            <select class="filter-input" id="filterRole" onchange="loadUsers()">
-              <option value="">Semua Role</option>
-              <option value="manager">Manager</option>
-              <option value="ca">Customer Advisor</option>
-              <option value="mekanik">Mekanik</option>
-              <option value="sparepart">Sparepart</option>
-              <option value="kasir">Kasir</option>
-            </select>
+  <div class="app-layout">
+    <div id="sidebar-container"></div>
+    <div class="main-content">
+      <div class="page-header">
+        <div class="page-header-inner">
+          <div>
+            <h1 class="page-title">Manajemen User</h1>
+            <p class="page-subtitle">Kelola akun karyawan bengkel</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="showAddUserModal()">➕ Tambah User</button>
           </div>
         </div>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Nama Lengkap</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Bergabung</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="userTable"></tbody>
-          </table>
+      </div>
+      <div class="page-body">
+        <div class="table-card">
+          <div class="table-card-header">
+            <div class="table-card-title">Daftar Karyawan</div>
+            <div class="table-filters">
+              <select class="filter-input" id="filterRole" onchange="loadUsers()">
+                <option value="">Semua Role</option>
+                <option value="manager">Manager</option>
+                <option value="ca">Customer Advisor</option>
+                <option value="mekanik">Mekanik</option>
+                <option value="sparepart">Sparepart</option>
+                <option value="kasir">Kasir</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>Nama Lengkap</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Bergabung</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="userTable"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-<div id="modal-container"></div>
+  <div id="modal-container"></div>
 
-<script src="js/config.js"></script>
-<script src="js/api.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/app.js"></script>
-<script>
-  // Hanya manager yang boleh akses halaman ini
-  if (!Auth.hasRole('manager')) {
-    Toast.error('Akses ditolak.'); setTimeout(() => navigate('dashboard.html'), 1500);
-  }
-
-  document.getElementById('sidebar-container').innerHTML = renderSidebar('users');
-
-  const ROLE_LABELS_LOCAL = { manager:'Manager', ca:'Customer Advisor', mekanik:'Mekanik', sparepart:'Sparepart', kasir:'Kasir' };
-  const ROLE_BADGE_COLORS = {
-    manager:'#6366f1', ca:'#06b6d4', mekanik:'#f59e0b', sparepart:'#8b5cf6', kasir:'#10b981'
-  };
-
-  async function loadUsers() {
-    const tbody = document.getElementById('userTable');
-    Utils.showLoading(tbody);
-    const role  = document.getElementById('filterRole').value;
-    const res   = await API.getUsers(role ? { role } : {});
-    if (!res || !res.ok) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--danger);padding:20px;">Gagal memuat data.</td></tr>`;
-      return;
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Hanya manager yang boleh akses halaman ini
+    if (!Auth.hasRole('manager')) {
+      Toast.error('Akses ditolak.'); setTimeout(() => navigate('dashboard.html'), 1500);
     }
-    const users = res.data.data.data || [];
-    if (users.length === 0) { Utils.showEmpty(tbody, 'Tidak ada user'); return; }
 
-    tbody.innerHTML = users.map(u => {
-      const isMe   = u.id_user === Auth.getUser()?.id_user;
-      const color  = ROLE_BADGE_COLORS[u.role] || '#94a3b8';
-      const initials = u.nama_lengkap?.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
-      return `
+    document.getElementById('sidebar-container').innerHTML = renderSidebar('users');
+
+    const ROLE_LABELS_LOCAL = { manager: 'Manager', ca: 'Customer Advisor', mekanik: 'Mekanik', sparepart: 'Sparepart', kasir: 'Kasir' };
+    const ROLE_BADGE_COLORS = {
+      manager: '#6366f1', ca: '#06b6d4', mekanik: '#f59e0b', sparepart: '#8b5cf6', kasir: '#10b981'
+    };
+
+    async function loadUsers() {
+      const tbody = document.getElementById('userTable');
+      Utils.showLoading(tbody);
+      const role = document.getElementById('filterRole').value;
+      const res = await API.getUsers(role ? { role } : {});
+      if (!res || !res.ok) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--danger);padding:20px;">Gagal memuat data.</td></tr>`;
+        return;
+      }
+      const users = res.data.data.data || [];
+      if (users.length === 0) { Utils.showEmpty(tbody, 'Tidak ada user'); return; }
+
+      tbody.innerHTML = users.map(u => {
+        const isMe = u.id_user === Auth.getUser()?.id_user;
+        const color = ROLE_BADGE_COLORS[u.role] || '#94a3b8';
+        const initials = u.nama_lengkap?.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+        return `
         <tr>
           <td>${u.id_user}</td>
           <td><code style="background:var(--bg-elevated);padding:2px 8px;border-radius:4px;font-size:0.8rem;">${Utils.escapeHtml(u.username)}</code></td>
@@ -103,42 +107,42 @@
             </div>
           </td>
           <td><span class="badge" style="background:${color}25;color:${color};">${ROLE_LABELS_LOCAL[u.role] || u.role}</span></td>
-          <td>${u.status_aktif ? '<span class="badge badge-ok" style="font-weight:800; text-transform:uppercase; border-radius:0;">AKTIF</span>' : '<span class="badge badge-low" style="font-weight:800; text-transform:uppercase; border-radius:0;">NONAKTIF</span>'}</td>
+          <td>${u.status_aktif ? '<span class="badge badge-ok">✅ Aktif</span>' : '<span class="badge badge-low">❌ Nonaktif</span>'}</td>
           <td>${Utils.formatDate(u.created_at)}</td>
           <td>
             <div class="actions">
-              <button class="btn btn-secondary btn-sm" style="border-radius:0; font-weight:800; text-transform:uppercase;" data-action="edit" data-id="${u.id_user}" data-nama="${Utils.escapeHtml(u.nama_lengkap)}" data-role="${u.role}" data-aktif="${u.status_aktif ? '1' : '0'}">EDIT</button>
-              ${!isMe ? `<button class="btn btn-danger btn-sm" style="border-radius:0; font-weight:800; text-transform:uppercase;" data-action="delete" data-id="${u.id_user}" data-nama="${Utils.escapeHtml(u.nama_lengkap)}">HAPUS</button>` : ''}
+              <button class="btn btn-secondary btn-sm" data-action="edit" data-id="${u.id_user}" data-nama="${Utils.escapeHtml(u.nama_lengkap)}" data-role="${u.role}" data-aktif="${u.status_aktif ? '1' : '0'}">✏️ Edit</button>
+              ${!isMe ? `<button class="btn btn-danger btn-sm" data-action="delete" data-id="${u.id_user}" data-nama="${Utils.escapeHtml(u.nama_lengkap)}">🗑️</button>` : ''}
             </div>
           </td>
         </tr>
       `;
-    }).join('');
+      }).join('');
 
-    // Event delegation untuk tombol aksi — aman dari special characters
-    tbody.querySelectorAll('[data-action]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const action = btn.dataset.action;
-        const id     = parseInt(btn.dataset.id);
-        const nama   = btn.dataset.nama;
-        if (action === 'edit') {
-          showEditUserModal(id, nama, btn.dataset.role, btn.dataset.aktif === '1');
-        } else if (action === 'delete') {
-          confirmDeleteUser(id, nama);
-        }
+      // Event delegation untuk tombol aksi — aman dari special characters
+      tbody.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const action = btn.dataset.action;
+          const id = parseInt(btn.dataset.id);
+          const nama = btn.dataset.nama;
+          if (action === 'edit') {
+            showEditUserModal(id, nama, btn.dataset.role, btn.dataset.aktif === '1');
+          } else if (action === 'delete') {
+            confirmDeleteUser(id, nama);
+          }
+        });
       });
-    });
-  }
+    }
 
-  // ── Add User ──
-  function showAddUserModal() {
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay'; modal.id = 'addUserModal';
-    modal.innerHTML = `
+    // ── Add User ──
+    function showAddUserModal() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay'; modal.id = 'addUserModal';
+      modal.innerHTML = `
       <div class="modal" style="max-width:460px;">
-        <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
-          <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">TAMBAH USER BARU</div>
-          <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('addUserModal')">X</button>
+        <div class="modal-header">
+          <div class="modal-title">➕ Tambah User Baru</div>
+          <button class="modal-close" onclick="Utils.closeModal('addUserModal')">✕</button>
         </div>
         <div class="modal-body">
           <div id="addUserError" class="alert alert-error" style="display:none;"></div>
@@ -160,57 +164,57 @@
             <div class="form-group"><label>Konfirmasi Password *</label><div class="input-wrapper"><input type="password" id="add_pw_conf" placeholder="Ulangi password" autocomplete="new-password" /></div></div>
           </div>
         </div>
-        <div class="modal-footer" style="border-top:2px solid #000; border-radius:0;">
-          <button class="btn btn-secondary" style="border-radius:0; font-weight:800; text-transform:uppercase;" onclick="Utils.closeModal('addUserModal')">BATAL</button>
-          <button class="btn btn-primary" style="border-radius:0; font-weight:800; text-transform:uppercase;" id="submitAddUser" onclick="submitAddUser()">BUAT AKUN</button>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="Utils.closeModal('addUserModal')">Batal</button>
+          <button class="btn btn-primary" id="submitAddUser" onclick="submitAddUser()">Buat Akun</button>
         </div>
       </div>`;
-    document.body.appendChild(modal);
-  }
-
-  async function submitAddUser() {
-    const btn = document.getElementById('submitAddUser');
-    btn.disabled = true; btn.textContent = 'Menyimpan...';
-    const data = {
-      username:              document.getElementById('add_username').value.trim(),
-      nama_lengkap:          document.getElementById('add_nama').value.trim(),
-      role:                  document.getElementById('add_role').value,
-      password:              document.getElementById('add_pw').value,
-      password_confirmation: document.getElementById('add_pw_conf').value,
-    };
-    const res = await API.createUser(data);
-    btn.disabled = false; btn.textContent = 'Buat Akun';
-    if (res && res.ok) {
-      Toast.success('User berhasil dibuat!');
-      Utils.closeModal('addUserModal');
-      loadUsers();
-    } else {
-      const msg = res?.data?.errors ? Object.values(res.data.errors).flat().join(' | ') : (res?.data?.message || 'Gagal.');
-      document.getElementById('addUserError').textContent = msg;
-      document.getElementById('addUserError').style.display = 'block';
+      document.body.appendChild(modal);
     }
-  }
 
-  // ── Edit User ──
-  function showEditUserModal(id, nama, role, statusAktif) {
-    const modal = document.createElement('div');
-    modal.className = 'modal-overlay'; modal.id = 'editUserModal';
-    modal.innerHTML = `
+    async function submitAddUser() {
+      const btn = document.getElementById('submitAddUser');
+      btn.disabled = true; btn.textContent = 'Menyimpan...';
+      const data = {
+        username: document.getElementById('add_username').value.trim(),
+        nama_lengkap: document.getElementById('add_nama').value.trim(),
+        role: document.getElementById('add_role').value,
+        password: document.getElementById('add_pw').value,
+        password_confirmation: document.getElementById('add_pw_conf').value,
+      };
+      const res = await API.createUser(data);
+      btn.disabled = false; btn.textContent = 'Buat Akun';
+      if (res && res.ok) {
+        Toast.success('User berhasil dibuat!');
+        Utils.closeModal('addUserModal');
+        loadUsers();
+      } else {
+        const msg = res?.data?.errors ? Object.values(res.data.errors).flat().join(' | ') : (res?.data?.message || 'Gagal.');
+        document.getElementById('addUserError').textContent = msg;
+        document.getElementById('addUserError').style.display = 'block';
+      }
+    }
+
+    // ── Edit User ──
+    function showEditUserModal(id, nama, role, statusAktif) {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay'; modal.id = 'editUserModal';
+      modal.innerHTML = `
       <div class="modal" style="max-width:460px;">
-        <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
-          <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">EDIT USER</div>
-          <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('editUserModal')">X</button>
+        <div class="modal-header">
+          <div class="modal-title">✏️ Edit User</div>
+          <button class="modal-close" onclick="Utils.closeModal('editUserModal')">✕</button>
         </div>
         <div class="modal-body">
           <div id="editUserError" class="alert alert-error" style="display:none;"></div>
           <div class="form-group"><label>Nama Lengkap</label><div class="input-wrapper"><input type="text" id="edit_user_nama" value="${nama}" /></div></div>
           <div class="form-group"><label>Role</label>
             <select id="edit_user_role" style="width:100%;padding:10px 14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);outline:none;">
-              <option value="ca" ${role==='ca'?'selected':''}>Customer Advisor</option>
-              <option value="mekanik" ${role==='mekanik'?'selected':''}>Mekanik</option>
-              <option value="sparepart" ${role==='sparepart'?'selected':''}>Sparepart</option>
-              <option value="kasir" ${role==='kasir'?'selected':''}>Kasir</option>
-              <option value="manager" ${role==='manager'?'selected':''}>Manager</option>
+              <option value="ca" ${role === 'ca' ? 'selected' : ''}>Customer Advisor</option>
+              <option value="mekanik" ${role === 'mekanik' ? 'selected' : ''}>Mekanik</option>
+              <option value="sparepart" ${role === 'sparepart' ? 'selected' : ''}>Sparepart</option>
+              <option value="kasir" ${role === 'kasir' ? 'selected' : ''}>Kasir</option>
+              <option value="manager" ${role === 'manager' ? 'selected' : ''}>Manager</option>
             </select>
           </div>
           <div class="form-group">
@@ -226,46 +230,47 @@
             <div class="form-group"><label>Konfirmasi</label><div class="input-wrapper"><input type="password" id="edit_user_pw_conf" placeholder="Ulangi" autocomplete="new-password" /></div></div>
           </div>
         </div>
-        <div class="modal-footer" style="border-top:2px solid #000; border-radius:0;">
-          <button class="btn btn-secondary" style="border-radius:0; font-weight:800; text-transform:uppercase;" onclick="Utils.closeModal('editUserModal')">BATAL</button>
-          <button class="btn btn-primary" style="border-radius:0; font-weight:800; text-transform:uppercase;" id="submitEditUser" onclick="submitEditUser(${id})">UPDATE</button>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="Utils.closeModal('editUserModal')">Batal</button>
+          <button class="btn btn-primary" id="submitEditUser" onclick="submitEditUser(${id})">Update</button>
         </div>
       </div>`;
-    document.body.appendChild(modal);
-  }
-
-  async function submitEditUser(id) {
-    const btn = document.getElementById('submitEditUser');
-    btn.disabled = true; btn.textContent = 'Menyimpan...';
-    const data = {
-      nama_lengkap: document.getElementById('edit_user_nama').value.trim(),
-      role:         document.getElementById('edit_user_role').value,
-      status_aktif: document.getElementById('edit_user_aktif').checked,
-    };
-    const pw = document.getElementById('edit_user_pw').value;
-    if (pw) { data.password = pw; data.password_confirmation = document.getElementById('edit_user_pw_conf').value; }
-
-    const res = await API.updateUser(id, data);
-    btn.disabled = false; btn.textContent = 'Update';
-    if (res && res.ok) {
-      Toast.success('User berhasil diupdate!');
-      Utils.closeModal('editUserModal');
-      loadUsers();
-    } else {
-      const msg = res?.data?.errors ? Object.values(res.data.errors).flat().join(' | ') : (res?.data?.message || 'Gagal update.');
-      document.getElementById('editUserError').textContent = msg;
-      document.getElementById('editUserError').style.display = 'block';
+      document.body.appendChild(modal);
     }
-  }
 
-  async function confirmDeleteUser(id, nama) {
-    if (!confirm(`Yakin ingin menonaktifkan akun "${nama}"? User tidak bisa login setelah ini.`)) return;
-    const res = await API.deleteUser(id);
-    if (res && res.ok) { Toast.success('User berhasil dinonaktifkan.'); loadUsers(); }
-    else { Toast.error(res?.data?.message || 'Gagal.'); }
-  }
+    async function submitEditUser(id) {
+      const btn = document.getElementById('submitEditUser');
+      btn.disabled = true; btn.textContent = 'Menyimpan...';
+      const data = {
+        nama_lengkap: document.getElementById('edit_user_nama').value.trim(),
+        role: document.getElementById('edit_user_role').value,
+        status_aktif: document.getElementById('edit_user_aktif').checked,
+      };
+      const pw = document.getElementById('edit_user_pw').value;
+      if (pw) { data.password = pw; data.password_confirmation = document.getElementById('edit_user_pw_conf').value; }
 
-  loadUsers();
-</script>
+      const res = await API.updateUser(id, data);
+      btn.disabled = false; btn.textContent = 'Update';
+      if (res && res.ok) {
+        Toast.success('User berhasil diupdate!');
+        Utils.closeModal('editUserModal');
+        loadUsers();
+      } else {
+        const msg = res?.data?.errors ? Object.values(res.data.errors).flat().join(' | ') : (res?.data?.message || 'Gagal update.');
+        document.getElementById('editUserError').textContent = msg;
+        document.getElementById('editUserError').style.display = 'block';
+      }
+    }
+
+    async function confirmDeleteUser(id, nama) {
+      if (!confirm(`Yakin ingin menonaktifkan akun "${nama}"? User tidak bisa login setelah ini.`)) return;
+      const res = await API.deleteUser(id);
+      if (res && res.ok) { Toast.success('User berhasil dinonaktifkan.'); loadUsers(); }
+      else { Toast.error(res?.data?.message || 'Gagal.'); }
+    }
+
+    loadUsers();
+  </script>
 </body>
+
 </html>
