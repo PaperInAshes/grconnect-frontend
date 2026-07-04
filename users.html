@@ -107,12 +107,12 @@
             </div>
           </td>
           <td><span class="badge" style="background:${color}25;color:${color};">${ROLE_LABELS_LOCAL[u.role] || u.role}</span></td>
-          <td>${u.status_aktif ? '<span class="badge badge-ok">✅ Aktif</span>' : '<span class="badge badge-low">❌ Nonaktif</span>'}</td>
+          <td>${u.status_aktif ? '<span class="badge badge-ok">Aktif</span>' : '<span class="badge badge-low">❌ Nonaktif</span>'}</td>
           <td>${Utils.formatDate(u.created_at)}</td>
           <td>
             <div class="actions">
               <button class="btn btn-secondary btn-sm" data-action="edit" data-id="${u.id_user}" data-nama="${Utils.escapeHtml(u.nama_lengkap)}" data-role="${u.role}" data-aktif="${u.status_aktif ? '1' : '0'}">✏️ Edit</button>
-              ${!isMe ? `<button class="btn btn-danger btn-sm" data-action="delete" data-id="${u.id_user}" data-nama="${Utils.escapeHtml(u.nama_lengkap)}">🗑️</button>` : ''}
+              ${!isMe ? `<button class="btn btn-danger btn-sm" data-action="delete" data-id="${u.id_user}" data-nama="${Utils.escapeHtml(u.nama_lengkap)}">DELETE</button>` : ''}
             </div>
           </td>
         </tr>
@@ -141,7 +141,7 @@
       modal.innerHTML = `
       <div class="modal" style="max-width:460px;">
         <div class="modal-header">
-          <div class="modal-title">➕ Tambah User Baru</div>
+          <div class="modal-title">Tambah User Baru</div>
           <button class="modal-close" onclick="Utils.closeModal('addUserModal')">✕</button>
         </div>
         <div class="modal-body">
@@ -202,7 +202,7 @@
       modal.innerHTML = `
       <div class="modal" style="max-width:460px;">
         <div class="modal-header">
-          <div class="modal-title">✏️ Edit User</div>
+          <div class="modal-title">Edit User</div>
           <button class="modal-close" onclick="Utils.closeModal('editUserModal')">✕</button>
         </div>
         <div class="modal-body">
