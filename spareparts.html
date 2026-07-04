@@ -28,9 +28,9 @@
           <div class="table-filters">
             <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--text-secondary);cursor:pointer;">
               <input type="checkbox" id="filterLowStock" onchange="loadSpareparts()" style="accent-color:var(--danger);" />
-              ⚠️ Stok Kritis saja
+              STOK KRITIS SAJA
             </label>
-            <input type="text" class="filter-input" id="filterSearch" placeholder="🔍 Cari nama part..." oninput="debounceLoad()" style="width:200px;" />
+            <input type="text" class="filter-input" id="filterSearch" placeholder="CARI NAMA PART..." oninput="debounceLoad()" style="width:200px;" />
           </div>
         </div>
         <div class="table-wrapper">
@@ -73,7 +73,7 @@
 
   if (canManage) {
     document.getElementById('page-actions').innerHTML =
-      `<button class="btn btn-primary" onclick="showAddPartModal()">➕ Tambah Sparepart</button>`;
+      `<button class="btn btn-primary" style="border-radius:0; font-weight:800; text-transform:uppercase;" onclick="showAddPartModal()">TAMBAH SPAREPART</button>`;
   }
 
   async function loadSpareparts(page = 1) {
@@ -134,7 +134,7 @@
       `;
     }).join('');
 
-    // Event Delegation — aman dari special characters & apostrof
+    // Event Delegation
     tbody.querySelectorAll('[data-action]').forEach(btn => {
       btn.addEventListener('click', () => {
         const action = btn.dataset.action;
@@ -170,9 +170,9 @@
     modal.className = 'modal-overlay'; modal.id = 'addPartModal';
     modal.innerHTML = `
       <div class="modal" style="max-width:440px;">
-        <div class="modal-header">
-          <div class="modal-title">➕ Tambah Sparepart Baru</div>
-          <button class="modal-close" onclick="Utils.closeModal('addPartModal')">✕</button>
+        <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
+          <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">TAMBAH SPAREPART BARU</div>
+          <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('addPartModal')">X</button>
         </div>
         <div class="modal-body">
           <div id="addPartError" class="alert alert-error" style="display:none;"></div>
@@ -219,9 +219,9 @@
     modal.className = 'modal-overlay'; modal.id = 'editPartModal';
     modal.innerHTML = `
       <div class="modal" style="max-width:440px;">
-        <div class="modal-header">
-          <div class="modal-title">✏️ Edit Sparepart</div>
-          <button class="modal-close" onclick="Utils.closeModal('editPartModal')">✕</button>
+        <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
+          <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">EDIT SPAREPART</div>
+          <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('editPartModal')">X</button>
         </div>
         <div class="modal-body">
           <div id="editPartError" class="alert alert-error" style="display:none;"></div>
@@ -265,9 +265,9 @@
     modal.className = 'modal-overlay'; modal.id = 'restockModal';
     modal.innerHTML = `
       <div class="modal" style="max-width:400px;">
-        <div class="modal-header">
-          <div class="modal-title">📥 Restock: ${nama}</div>
-          <button class="modal-close" onclick="Utils.closeModal('restockModal')">✕</button>
+        <div class="modal-header" style="background:#111; color:#fff; border-radius:0;">
+          <div class="modal-title" style="text-transform:uppercase; font-weight:800; letter-spacing:0.05em;">RESTOCK: ${nama}</div>
+          <button class="modal-close" style="color:#fff;" onclick="Utils.closeModal('restockModal')">X</button>
         </div>
         <div class="modal-body">
           <div id="restockError" class="alert alert-error" style="display:none;"></div>
@@ -275,8 +275,8 @@
           <div class="form-group"><label>Tambah Stok (qty) *</label><div class="input-wrapper"><input type="number" id="restock_qty" placeholder="10" min="1" /></div></div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" onclick="Utils.closeModal('restockModal')">Batal</button>
-          <button class="btn btn-success" id="submitRestock" onclick="submitRestock(${id}, ${stokSaat})">📥 Tambah Stok</button>
+          <button class="btn btn-secondary" style="border-radius:0; font-weight:800; text-transform:uppercase;" onclick="Utils.closeModal('restockModal')">BATAL</button>
+          <button class="btn btn-success" style="border-radius:0; font-weight:800; text-transform:uppercase;" id="submitRestock" onclick="submitRestock(${id}, ${stokSaat})">TAMBAH STOK</button>
         </div>
       </div>`;
     document.body.appendChild(modal);
@@ -292,7 +292,6 @@
       btn.disabled = false; btn.textContent = 'TAMBAH STOK';
       return;
     }
-    // Gunakan endpoint atom /restock — backend lakukan increment() bukan overwrite
     const res = await API.restockSparepart(id, { qty });
     btn.disabled = false; btn.textContent = 'TAMBAH STOK';
     if (res && res.ok) {

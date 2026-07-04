@@ -339,17 +339,10 @@
         const status = filterSel ? filterSel.value : '';
         const plat = document.getElementById('filterPlat').value.trim();
 
-        // Kasir: jika tidak ada filter manual, default ke nunggu_pembayaran
-        // agar antrean pembayaran langsung terlihat. Kasir tetap bisa pilih
-        // 'SEMUA STATUS' (value="") dari dropdown untuk melihat seluruh WO.
         if (status) {
-          // Ada pilihan eksplisit dari user → pakai langsung (termasuk jika Kasir
-          // sengaja pilih "SEMUA STATUS" → value="" → blok ini tidak dimasuki)
           params.status = status;
         } else if (Auth.hasRole('kasir') && !Auth.hasRole('manager')) {
-          // Kasir, belum ada filter manual → gunakan default nunggu_pembayaran
           params.status = 'nunggu_pembayaran';
-          // Sync ke dropdown agar user tahu filter aktif
           if (filterSel && filterSel.value === '') {
             filterSel.value = 'nunggu_pembayaran';
           }
@@ -417,7 +410,7 @@
           const _user = Auth.getUser();
           const _canCetak = _user && ['ca','manager'].includes(_user.role) && ['nunggu_pembayaran','selesai'].includes(wo.status_wo);
           if (_canCetak)
-            menuItems += `<button class="kebab-item" style="color:#1d4ed8; font-weight:800;" onclick="printWorkOrder(${wo.id_wo}); closeAllKebab()">🖨 CETAK NOTA</button>`;
+            menuItems += `<button class="kebab-item" style="color:#1d4ed8; font-weight:800;" onclick="printWorkOrder(${wo.id_wo}); closeAllKebab()">CETAK NOTA</button>`;
 
           return `
           <tr style="border-bottom: 1px solid #d1d5db;">
@@ -518,7 +511,7 @@
             </div>
             ${ wo.status_audit_ca === 'rejected' ? `
             <div class="detail-section" style="border: 2px solid #dc2626; padding: 12px; margin-bottom: 16px; background: #fff5f5;">
-              <div class="detail-section-title" style="font-weight:800; text-transform:uppercase; border-bottom: 2px solid #dc2626; padding-bottom: 8px; margin-bottom: 8px; color:#dc2626;">⚠ AUDIT DITOLAK — CATATAN CA</div>
+              <div class="detail-section-title" style="font-weight:800; text-transform:uppercase; border-bottom: 2px solid #dc2626; padding-bottom: 8px; margin-bottom: 8px; color:#dc2626;">AUDIT DITOLAK — CATATAN CA</div>
               <p style="font-weight:700; color:#dc2626; margin:0; line-height:1.6;">${Utils.escapeHtml(wo.catatan_ca || 'Tidak ada catatan.')}</p>
             </div>` : '' }
             <div class="detail-section" style="border: 2px solid #000; padding: 12px; margin-bottom: 16px;">
@@ -543,7 +536,7 @@
           <div class="modal-footer" style="border-top: 2px solid #000; border-radius:0; justify-content:space-between;">
             <button class="btn btn-secondary btn-nascar" onclick="Utils.closeModal('detailModal')">TUTUP</button>
             ${ (['nunggu_pembayaran','selesai'].includes(wo.status_wo) && Auth.hasRole('ca','manager'))
-              ? `<button class="btn btn-nascar" style="background:#1d4ed8; color:#fff;" onclick="Utils.closeModal('detailModal'); printWorkOrder(${wo.id_wo})">🖨 CETAK NOTA</button>`
+              ? `<button class="btn btn-nascar" style="background:#1d4ed8; color:#fff;" onclick="Utils.closeModal('detailModal'); printWorkOrder(${wo.id_wo})">CETAK NOTA</button>`
               : '' }
           </div>
         </div>`;
