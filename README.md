@@ -12,14 +12,14 @@ Aplikasi ini sudah di-deploy dan dapat diakses secara live melalui tautan beriku
 **🔗 [GR-Connect Live Web / API](https://grconnect-api.kesug.com)**
 
 Untuk keperluan *User Acceptance Testing* (UAT) dan pengujian alur bisnis, silakan gunakan kredensial berikut pada halaman login:
-
-| Role / Posisi | Username | Password | Deskripsi Hak Akses |
+| Role / Departemen | Username | Password | Deskripsi Hak Akses |
 | :--- | :--- | :--- | :--- |
-| **Manager** | `manager01` | `password` | *Full Control*, manajemen user, laporan global. |
-| **Customer Advisor** | `ca01` | `password` | Membuat WO, **Audit Estimasi (Approve/Reject)**, Cetak Nota. |
-| **Mekanik** | `mekanik01` | `password` | Input kerusakan aktual & estimasi (hanya WO miliknya). |
-| **Kasir** | `kasir01` | `password` | Proses pelunasan dan penutupan transaksi. |
-| **Gudang** | `sparepart01` | `password` | Manajemen inventaris suku cadang (stok & harga). |
+| **Manager** | `manager01` | `password123` | *Full Control*, manajemen user, laporan global. |
+| **Customer Advisor (CA)** | `ca01`, `ca02`, `ca03` | `password123` | Membuat WO, **Audit Estimasi (Approve/Reject)**, Cetak Nota. |
+| **Kasir** | `kasir01`, `kasir02` | `password123` | Proses pelunasan dan penutupan transaksi. |
+| **Sparepart (Gudang)** | `sparepart01`, `sparepart02`, `sparepart03` | `password123` | Manajemen inventaris suku cadang (stok & harga). |
+| **Mekanik** | `mekanik01` s/d `mekanik10` | `password123` | Input kerusakan aktual & estimasi (hanya WO miliknya). |
+
 
 ---
 
@@ -67,15 +67,6 @@ GR-Connect-Project/
     └── *.html                # Halaman view (Dashboard, Login, WO)
 
 ```
-
-## Daftar Akun :
-| Role / Departemen | Username | Password | Deskripsi Hak Akses |
-| :--- | :--- | :--- | :--- |
-| **Manager** | `manager01` | `password123` | *Full Control*, manajemen user, laporan global. |
-| **Customer Advisor (CA)** | `ca01`, `ca02`, `ca03` | `password123` | Membuat WO, **Audit Estimasi (Approve/Reject)**, Cetak Nota. |
-| **Kasir** | `kasir01`, `kasir02` | `password123` | Proses pelunasan dan penutupan transaksi. |
-| **Sparepart (Gudang)** | `sparepart01`, `sparepart02`, `sparepart03` | `password123` | Manajemen inventaris suku cadang (stok & harga). |
-| **Mekanik** | `mekanik01` s/d `mekanik10` | `password123` | Input kerusakan aktual & estimasi (hanya WO miliknya). |
 
 ---
 
